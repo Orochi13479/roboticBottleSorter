@@ -49,3 +49,29 @@ X250.animate(X250.getpos());
 
 disp('Robots Mounted');
 disp('Setup is complete');
+
+%% Environment 
+
+% Environment - Table dimensions
+TableDimensions = [2.1, 1.4, 0.5]; %[Length, Width, Height]
+
+%Concrete floor
+% surf([-4.3,-4.3;4.3,4.3] ...
+%     ,[-2.2,2.2;-2.2,2.2] ...
+%     ,[0.01,0.01;0.01,0.01] ...
+%     ,'CData',imread('concrete.jpg'),'FaceColor','texturemap');
+
+% % Place objects in environment
+% PlaceObject('brownTable.ply', [0, 0, 0]);
+% 
+% % Translation and Rotation Vectors
+% [armRotationMatrix, armTranslationMatrix] = tr2rt(armModel.base);
+% 
+% % Set armModel on table
+% translationVector = [0.65, 0, TableDimensions(3)];
+% 
+% % Base matrix
+% baseMatrix = rt2tr(armRotationMatrix, translationVector);
+% 
+% % Set armModel to base matrix
+% armModel.base = baseMatrix;
