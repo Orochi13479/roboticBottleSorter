@@ -1,7 +1,7 @@
 classdef CupStacker
     properties
-        UR32
-        X2502
+        UR3e
+        WidowX250
     end
     methods
         % Constructor
@@ -10,23 +10,28 @@ classdef CupStacker
             clf;
             % hold on;
             % axis equal;
+
+            % Robot Initialisations
             robotInit(self);
-            environment(self);
+
+            % Environment Setup
+            % environment(self);
 
 
         end
 
         function robotInit(self)
             % Initialise and Plot the UR3 object
-            self.UR3 = UR3;
-            UR3 = self.UR3.model;
+            % self.UR3robot = UR3;
+            self.UR3e = UR3e;
+            UR3 = self.UR3e.model;
 
             % Initialise the WidowX250 object
-            self.X2502 = WidowX250;
-            X250 = self.X2502.model;
+            self.WidowX250 = WidowX250;
+            X250 = self.WidowX250.model;
 
             % Plot WidowX250 robot
-            X250.plot(zeros(1, X250.n), 'workspace', self.UR3.workspace, 'nobase', 'noname', 'noraise', 'noshadow', 'notiles', 'nowrist');
+            X250.plot(zeros(1, X250.n), 'workspace', self.UR3e.workspace, 'nobase', 'noname', 'noraise', 'noshadow', 'notiles', 'nowrist');
 
             % Reduce lag
             UR3.delay = 0;
@@ -66,7 +71,7 @@ classdef CupStacker
             disp('Setup is complete');
         end
 
-        function environment(self)            
+        function environment(self)
             % Environment - Table dimensions
             TableDimensions = [2.1, 1.4, 0.5]; %[Length, Width, Height]
 
