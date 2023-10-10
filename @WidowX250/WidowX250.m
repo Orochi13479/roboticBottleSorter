@@ -17,7 +17,7 @@ classdef WidowX250 < RobotBaseClass
             self.model.base = self.model.base.T * baseTr;
 
             %% UNCOMMENT OUT WHEN SOMEONE ADDS PLY FILES
-            % self.PlotAndColourRobot();
+            self.PlotAndColourRobot();
         end
 
         %% Create the robot model

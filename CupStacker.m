@@ -21,7 +21,7 @@ classdef CupStacker
             X250 = self.WidowX250.model;
 
             % Plot WidowX250 robot
-            X250.plot(zeros(1, X250.n), 'workspace', self.UR3e.workspace, 'nobase', 'noname', 'noraise', 'noshadow', 'notiles', 'nowrist');
+            X250.plot(zeros(1, X250.n), 'workspace', self.UR3e.workspace,'nobase', 'noname', 'noraise', 'noshadow', 'notiles', 'nowrist', 'nojaxes', 'nojoints');
 
             % Reduce lag
             UR3.delay = 0;
@@ -34,7 +34,7 @@ classdef CupStacker
             [armRotationMatrix, armTranslationVector] = tr2rt(X250.base);
 
             % Translate along each axis
-            translationVector = [2, 0, 0];
+            translationVector = [0.5, 0, 0];
 
             % Specify the rotation angle in radians (90 degrees)
             angle = pi / 2;
