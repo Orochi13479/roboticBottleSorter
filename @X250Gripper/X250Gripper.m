@@ -1,6 +1,6 @@
-classdef WidowX250 < RobotBaseClass
+classdef X250Gripper < RobotBaseClass
 
-    %% WidowX250 created by 14289692 & 14289716
+    %% X250Gripper created by a 
 
     properties (Access = public)
         plyFileNameStem = 'WidowX250';
@@ -9,7 +9,7 @@ classdef WidowX250 < RobotBaseClass
     methods
 
         %% Define robot Function
-        function self = WidowX250(baseTr)
+        function self = X250Gripper(baseTr)
             self.CreateModel();
             if nargin < 1
                 baseTr = eye(4);
@@ -20,7 +20,7 @@ classdef WidowX250 < RobotBaseClass
             % self.PlotAndColourRobot();
         end
 
-        %% Create the robot model
+        %% Create the robot model (CHANGE ALL TO MAkE THE GRIPPER)
         function CreateModel(self)
             % Values from Diagram and Spec Sheet
             % https://www.trossenrobotics.com/docs/interbotix_xsarms/specifications/wx250s.html
@@ -42,11 +42,11 @@ classdef WidowX250 < RobotBaseClass
             link(5) = Link('d', 0, 'a', 0, 'alpha', pi/2, 'qlim', [-180, 180]*pi/180, 'offset', pi); % STL files: NONE
             link(6) = Link('d', L6+L7, 'a', 0, 'alpha', -pi/2, 'qlim', [-180, 180]*pi/180, 'offset', pi/2); % STL files: 6, 7
 
-            % Prismatic gripper joint PRELIMINARY GRIPPER DOENST WORK
+            % Prismatic gripper joint
             % theta: -90, d: 0, a: 0, alpha: 0,  offset: ?
-            % link(7) = Link([-pi / 2, 0, 0, 0, 0]); % PRISMATIC Link
+            link(7) = Link([-pi / 2, 0, 0, 0, 0]); % PRISMATIC Link
             % Prismatic joint limitations
-            % link(7).qlim = [0.03, 0.074];
+            link(7).qlim = [0.03, 0.074];
 
             self.model = SerialLink(link, 'name', self.name);
         end
