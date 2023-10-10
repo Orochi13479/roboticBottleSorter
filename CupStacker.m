@@ -8,19 +8,10 @@ classdef CupStacker
         function self = CupStacker()
             clc;
             clf;
-            % hold on;
+            hold on;
             % axis equal;
 
             % Robot Initialisations
-            robotInit(self);
-
-            % Environment Setup
-            % environment(self);
-
-
-        end
-
-        function robotInit(self)
             % Initialise and Plot the UR3 object
             % self.UR3robot = UR3;
             self.UR3e = UR3e;
@@ -69,7 +60,13 @@ classdef CupStacker
 
             disp('Robots Mounted');
             disp('Setup is complete');
+
+            % Environment Setup
+            % environment(self);
+
+
         end
+
 
         function environment(self)
             % Environment - Table dimensions

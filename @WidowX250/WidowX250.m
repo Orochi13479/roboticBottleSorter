@@ -18,7 +18,7 @@ classdef WidowX250 < RobotBaseClass
             
 
             %% UNCOMMENT OUT WHEN SOMEONE ADDS PLY FILES
-            % self.PlotAndColourRobot();
+            self.PlotAndColourRobot();
         end
 
         %% Create the robot model
