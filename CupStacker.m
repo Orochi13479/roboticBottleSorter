@@ -12,8 +12,7 @@ classdef CupStacker
             % axis equal;
 
             % Robot Initialisations
-            % Initialise and Plot the UR3 object
-            % self.UR3robot = UR3;
+            % Initialise and Plot the UR3e object
             self.UR3e = UR3e;
             UR3 = self.UR3e.model;
 
