@@ -1,6 +1,6 @@
 classdef X250Gripper < RobotBaseClass
 
-    %% X250Gripper created by a 
+    %% X250Gripper created by 
 
     properties (Access = public)
         plyFileNameStem = 'X250Gripper';
@@ -32,14 +32,14 @@ classdef X250Gripper < RobotBaseClass
             % Prismatic joint limitations
             % link(7).qlim = [0.03, 0.074];
 
-            LinkG(1) = Link([-pi/2, 0, 0, 0, 0]);
-            LinkG(2) = Link([0, 0, 0, 0, 0]);
-            LinkG(3) = Link([0, 0, 0, 0, 0]);
+            link(1) = Link([-pi/2, 0, 0, 0, 0]);
+            link(2) = Link([0, 0, 0, 0, 0]);
+            link(3) = Link([0, 0, 0, 0, 0]);
             
-            LinkG(2).qlim = [0.03, 0.074];
-            LinkG(3).qlim = [0.03, 0.074];
+            link(2).qlim = [0.03, 0.074];
+            link(3).qlim = [0.03, 0.074];
 
-            self.model = SerialLink(LinkG, 'name', self.name);
+            self.model = SerialLink(link, 'name', self.name);
             % self.base = WidowX250.fkine(WidowX250.getpos).T*trotz(pi)*trotx(pi/2);
         end
 

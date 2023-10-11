@@ -3,7 +3,7 @@ classdef WidowX250 < RobotBaseClass
     %% WidowX250 created by 14289692 & 14289716 & 14264764
 
     properties (Access = public)
-        plyFileNameStem = 'AdjustedWidowX250';
+        plyFileNameStem = 'WidowX250';
     end
 
     methods
