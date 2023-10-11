@@ -29,7 +29,7 @@ classdef UR3e < RobotBaseClass
             self.CreateModel();
 			self.model.base = self.model.base.T * baseTr;
             self.model.tool = self.toolTr;
-			warning('The DH parameters are correct. But as of July 2023 the ply files for this UR3e model are definitely incorrect, since we are using the UR3 ply files renamed as UR3e. Once replaced remove this warning.')  
+			% warning('The DH parameters are correct. But as of July 2023 the ply files for this UR3e model are definitely incorrect, since we are using the UR3 ply files renamed as UR3e. Once replaced remove this warning.')  
             self.PlotAndColourRobot();
 
             drawnow
