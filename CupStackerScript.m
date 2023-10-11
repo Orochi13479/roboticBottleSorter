@@ -58,7 +58,7 @@ disp('Setup is complete');
 steps = 200;
 % WidowX250.teach()
 % UR3e.teach()
-
+input("Press Enter to See Beauty")
 for i = 1:1
     if i == 1
         % Initial Starting Position
