@@ -16,9 +16,7 @@ classdef WidowX250 < RobotBaseClass
             end
             self.model.base = self.model.base.T * baseTr;
 
-            %% UNCOMMENT OUT WHEN SOMEONE ADDS PLY FILES
             self.PlotAndColourRobot();
-            
         end
 
         %% Create the robot model
@@ -28,7 +26,7 @@ classdef WidowX250 < RobotBaseClass
             L1 = 0.11025;
             L2 = 0.25;
             L3 = 0.05;
-            L4 = 0.17155;   
+            L4 = 0.17155;
             L5 = 0.07845;
             L6 = 0.065;
             L7 = 0.066;
@@ -43,15 +41,7 @@ classdef WidowX250 < RobotBaseClass
             link(5) = Link('d', 0, 'a', 0, 'alpha', pi/2, 'qlim', [-180, 180]*pi/180, 'offset', pi); % STL files: NONE
             link(6) = Link('d', L6+L7, 'a', 0, 'alpha', -pi/2, 'qlim', [-180, 180]*pi/180, 'offset', pi/2); % STL files: 6, 7
 
-            % Prismatic gripper joint PRELIMINARY GRIPPER DOENST WORK
-            % theta: -90, d: 0, a: 0, alpha: 0,  offset: ?
-            % link(7) = Link([-pi / 2, 0, 0, 0, 0]); % PRISMATIC Link
-            % Prismatic joint limitations
-            % link(7).qlim = [0.03, 0.074];
-
             self.model = SerialLink(link, 'name', self.name);
-            
         end
-
     end
 end

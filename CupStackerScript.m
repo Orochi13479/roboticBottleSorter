@@ -6,19 +6,21 @@ hold on;
 
 % Robot Initialisations
 % Initialise and Plot the UR3e object
-UR3eRobot = UR3e;
-UR3e = UR3eRobot.model;
+% UR3eRobot = UR3e;
+% UR3e = UR3eRobot.model;
 
-% Initialise the WidowX250 object
+% Initialise and Plot the WidowX250 object
 X250Robot = WidowX250;
 WidowX250 = X250Robot.model;
 
-% Plot WidowX250 robot
-% X250.plot(zeros(1, X250.n), 'workspace', self.UR3e.workspace, 'nobase', 'noname', 'noraise', 'noshadow', 'notiles', 'nowrist', 'nojaxes', 'nojoints');
+% Initialise and Plot the WidowX250 Gripper object
+X250Gripper = WidowX250Gripper;
+WidowX250Gripper = X250Gripper.model;
 
 % Reduce lag
 UR3e.delay = 0;
 WidowX250.delay = 0;
+WidowX250Gripper.delay = 0;
 
 disp('Robots Initialised');
 
@@ -47,7 +49,7 @@ desiredBaseMatrix = rt2tr(armRotationMatrix, translationVector);
 WidowX250.base = desiredBaseMatrix;
 
 % Assume starting position
-UR3e.animate(UR3e.getpos());
+% UR3e.animate(UR3e.getpos());
 WidowX250.animate(WidowX250.getpos());
 
 disp('Robots Mounted');
@@ -58,6 +60,7 @@ disp('Setup is complete');
 steps = 200;
 % WidowX250.teach()
 % UR3e.teach()
+WidowX250Gripper.teach()
 input("Press Enter to See Beauty")
 for i = 1:1
     if i == 1
