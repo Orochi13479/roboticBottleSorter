@@ -1,6 +1,6 @@
 classdef WidowX250 < RobotBaseClass
 
-    %% WidowX250 created by 14289692 & 14289716
+    %% WidowX250 created by 14289692 & 14289716 & 14264764
 
     properties (Access = public)
         plyFileNameStem = 'AdjustedWidowX250';
@@ -18,7 +18,7 @@ classdef WidowX250 < RobotBaseClass
 
             %% UNCOMMENT OUT WHEN SOMEONE ADDS PLY FILES
             self.PlotAndColourRobot();
-        
+            
         end
 
         %% Create the robot model
