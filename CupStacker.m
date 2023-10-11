@@ -63,7 +63,7 @@ classdef CupStacker
             % Environment Setup
             % environment(self);
 
-
+            operate(self);
         end
 
 
@@ -79,6 +79,12 @@ classdef CupStacker
 
             % Place objects in environment
             PlaceObject('brownTable.ply', [0, 0, 0]);
+        end
+
+        function operate(self)
+            % Begin operation
+            self.UR3e.TestMoveJoints;
+            self.WidowX250.TestMoveJoints;
         end
 
     end
