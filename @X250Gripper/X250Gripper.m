@@ -45,7 +45,6 @@ classdef X250Gripper < RobotBaseClass
             link(3).offset = pi/2;
 
             self.model = SerialLink(link, 'name', self.name);
-            % self.base = WidowX250.fkine(WidowX250.getpos).T*trotz(pi)*trotx(pi/2);
         end
 
     end
