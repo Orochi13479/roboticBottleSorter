@@ -50,6 +50,7 @@ classdef WidowX250 < RobotBaseClass
             % link(7).qlim = [0.03, 0.074];
 
             self.model = SerialLink(link, 'name', self.name);
+            
         end
 
     end
