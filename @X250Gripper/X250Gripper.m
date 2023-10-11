@@ -18,7 +18,7 @@ classdef X250Gripper < RobotBaseClass
 
             %% UNCOMMENT OUT WHEN SOMEONE ADDS PLY FILES
             self.PlotAndColourRobot();
-
+            
         end
 
         %% Create the robot model (CHANGE ALL TO MAkE THE GRIPPER)link
@@ -32,12 +32,17 @@ classdef X250Gripper < RobotBaseClass
             % Prismatic joint limitations
             % link(7).qlim = [0.03, 0.074];
 
-            link(1) = Link([-pi/2, 0, 0, 0, 0]);
-            link(2) = Link([0, 0, 0, 0, 0]);
-            link(3) = Link([0, 0, 0, 0, 0]);
+            link(1) = Link([-pi / 2, 0, 0, 0, 0]);
+            link(2) = Link([-pi / 2, 0, 0, 0, 0]);
+            link(3) = Link([-pi / 2, 0, 0, 0, 0]);
             
+            link(1).qlim = [0.03, 0.074];
             link(2).qlim = [0.03, 0.074];
             link(3).qlim = [0.03, 0.074];
+
+            link(1).offset = pi/2;
+            link(2).offset = pi/2;
+            link(3).offset = pi/2;
 
             self.model = SerialLink(link, 'name', self.name);
             % self.base = WidowX250.fkine(WidowX250.getpos).T*trotz(pi)*trotx(pi/2);
