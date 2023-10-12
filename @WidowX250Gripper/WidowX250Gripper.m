@@ -33,8 +33,8 @@ classdef WidowX250Gripper < RobotBaseClass
             %% DONT SEEM TO BE PRISMATIC JOINTS AND WILL HAVE TO MOST LIKELY
             %% DO TWO FINGERS INSTEAD OF ONE GRIPPER
         
-            link(1) = Link([pi/2, 0.255, 0, 0, 0]);
-            link(2) = Link([0, 0, 0, 0, 0]);
+            link(1) = Link([pi/2, 0, 0, 0, 0]);
+            link(2) = Link([pi/2, 0, 0, 0, 0]);
             link(3) = Link([0, 0, 0, 0, 0]);
             
 
@@ -43,7 +43,7 @@ classdef WidowX250Gripper < RobotBaseClass
             link(3).qlim = [0.03, 0.074];
             
 
-            link(1).offset = pi/2;
+            link(1).offset = 0;
             link(2).offset = pi/2;
             link(3).offset = 0;
             

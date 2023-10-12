@@ -3,10 +3,11 @@
 % rModel.teach;
 % r.TestMoveJoints;
 
-g = WidowX250Gripper.model;
-g.teach;
+% W = WidowX250Gripper;
+% g = W.model;
+% g.teach;
 
-% 
+
 % qPath = jtraj(rModel.qlim(:,1)', rModel.qlim(:,2)', 200);
 % for i = 1:length(qPath)
 %     rModel.animate(qPath(i,:))
