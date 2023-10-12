@@ -4,6 +4,7 @@ classdef CupStacker
         WidowX250
         WidowX250Gripper
     end
+
     methods
         % Constructor
         function self = CupStacker()
@@ -11,6 +12,10 @@ classdef CupStacker
             clf;
             hold on;
             % axis equal;
+
+            % Environment Initialisations
+            % Initialise and Plot objects 
+            self.environment
 
             % Robot Initialisations
             % Initialise and Plot the UR3e object
@@ -75,6 +80,8 @@ classdef CupStacker
 
 
         function environment(self)
+            folderName = 'data';
+
             % Environment - Table dimensions
             TableDimensions = [2.1, 1.4, 0.5]; %[Length, Width, Height]
 
@@ -86,6 +93,9 @@ classdef CupStacker
 
             % Place objects in environment
             PlaceObject('brownTable.ply', [0, 0, 0]);
+            PlaceObject('emergencyStopButton.ply', [0.96, 0.6, TableDimensions(3)]);
+            PlaceObject('warningSign.ply', [1.2, -1, 0]);
+
         end
 
         function operate(self)
