@@ -1,11 +1,12 @@
-r = WidowX250;
-rModel = r.model;
+% r = WidowX250;
+% rModel = r.model;
 % rModel.teach
-r.TestMoveJoints;
+% r.TestMoveJoints;
 
-% g = WidowX250Gripper;
-% gModel = g.model;
-% gModel.teach
+g = WidowX250Gripper;
+gModel = g.model;
+gModel.teach
+
 % 
 % qPath = jtraj(rModel.qlim(:,1)', rModel.qlim(:,2)', 200);
 % for i = 1:length(qPath)

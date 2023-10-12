@@ -2,6 +2,7 @@ classdef CupStacker
     properties
         UR3e
         WidowX250
+        WidowX250Gripper
     end
     methods
         % Constructor
@@ -19,6 +20,12 @@ classdef CupStacker
             % Initialise the WidowX250 object
             self.WidowX250 = WidowX250;
             X250 = self.WidowX250.model;
+
+            % Initialise the WidowX250Gripper
+            self.WidowX250Gripper = WidowX250Gripper;
+            Gripper = self.WidowX250Gripper.model;
+            % LGripper.base = WidowX250.fkine(WidowX250.getpos).T*trotx(pi/2);
+            % RGripper.base = WidowX250.fkine(WidowX250.getpos).T*trotz(pi)*trotx(pi/2);
 
             % Plot WidowX250 robot
             X250.plot(zeros(1, X250.n), 'workspace', self.UR3e.workspace,'nobase', 'noname', 'noraise', 'noshadow', 'notiles', 'nowrist', 'nojaxes', 'nojoints');
