@@ -81,20 +81,23 @@ classdef CupStacker
 
         function environment(self)
             folderName = 'data';
+            fileName = 'brownTable.ply';
+            filePath = fullfile(folderName, fileName);
 
             % Environment - Table dimensions
             TableDimensions = [2.1, 1.4, 0.5]; %[Length, Width, Height]
 
             % Concrete floor
-            surf([-4.3, -4.3; 4.3, 4.3] ...
-                , [-2.2, 2.2; -2.2, 2.2] ...
-                , [0.01, 0.01; 0.01, 0.01] ...
-                , 'CData', imread('concrete.jpg'), 'FaceColor', 'texturemap');
+            % surf([-4.3, -4.3; 4.3, 4.3] ...
+            %     , [-2.2, 2.2; -2.2, 2.2] ...
+            %     , [0.01, 0.01; 0.01, 0.01] ...
+            %     , 'CData', imread('concrete.jpg'), 'FaceColor', 'texturemap');
 
             % Place objects in environment
-            PlaceObject('brownTable.ply', [0, 0, 0]);
-            PlaceObject('emergencyStopButton.ply', [0.96, 0.6, TableDimensions(3)]);
-            PlaceObject('warningSign.ply', [1.2, -1, 0]);
+            PlaceObject(filePath, [0, 0, 0]);
+            % PlaceObject('brownTable.ply', [0, 0, 0]);
+            % PlaceObject('emergencyStopButton.ply', [0.96, 0.6, TableDimensions(3)]);
+            % PlaceObject('warningSign.ply', [1.2, -1, 0]);
 
         end
 
