@@ -84,6 +84,9 @@ classdef CupStacker
             fileName = 'brownTable.ply';
             filePath = fullfile(folderName, fileName);
 
+            fileName1 = 'plasticCup.ply';
+            filePath1 = fullfile(folderName, fileName1);
+
             % Environment - Table dimensions
             TableDimensions = [2.1, 1.4, 0.5]; %[Length, Width, Height]
 
@@ -95,6 +98,8 @@ classdef CupStacker
 
             % Place objects in environment
             PlaceObject(filePath, [0, 0, 0]);
+            PlaceObject(filePath1, [0.96, 0.6, TableDimensions(3)]);
+
             % PlaceObject('brownTable.ply', [0, 0, 0]);
             % PlaceObject('emergencyStopButton.ply', [0.96, 0.6, TableDimensions(3)]);
             % PlaceObject('warningSign.ply', [1.2, -1, 0]);
