@@ -1,11 +1,10 @@
 % r = WidowX250;
 % rModel = r.model;
-% rModel.teach
+% rModel.teach;
 % r.TestMoveJoints;
 
-g = WidowX250Gripper;
-gModel = g.model;
-gModel.teach
+g = WidowX250Gripper.model;
+g.teach;
 
 % 
 % qPath = jtraj(rModel.qlim(:,1)', rModel.qlim(:,2)', 200);
