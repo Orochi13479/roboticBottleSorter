@@ -65,7 +65,7 @@ disp('Setup is complete');
 steps = 200;
 % WidowX250.teach()
 % UR3e.teach()
-WidowX250Gripper.teach()
+% WidowX250Gripper.teach()
 input("Press Enter to See Beauty")
 for i = 1:1
     if i == 1
@@ -88,7 +88,7 @@ for i = 1:1
     for j = 1:steps
         WidowX250.animate(pickupTraj1(j, :));
         UR3e.animate(pickupTraj2(j, :));
-        WidowX250Gripper.base = WidowX250.fkine(WidowX250.getpos()).T;
+        WidowX250Gripper.base = WidowX250.fkine(WidowX250.getpos()).T* trotx(pi) * transl(0,-0.236,0);
         WidowX250Gripper.animate(WidowX250Gripper.getpos());
         drawnow();
     end
@@ -96,7 +96,7 @@ for i = 1:1
     for j = 1:steps
         WidowX250.animate(dropoffTraj1(j, :));
         UR3e.animate(dropoffTraj2(j, :));
-        WidowX250Gripper.base = WidowX250.fkine(WidowX250.getpos()).T;
+        WidowX250Gripper.base = WidowX250.fkine(WidowX250.getpos()).T* trotx(pi) * transl(0,-0.236,0);
         WidowX250Gripper.animate(WidowX250Gripper.getpos());
         drawnow();
     end
