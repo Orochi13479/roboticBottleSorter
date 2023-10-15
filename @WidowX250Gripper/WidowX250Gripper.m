@@ -28,8 +28,7 @@ classdef WidowX250Gripper < RobotBaseClass
             a1 = 0.03; % Link length
             a2 = 0.074; % Link length
 
-            link(1) = Link('d', a1, 'a', 0, 'alpha', pi/2, 'offset', pi/2); % STL files: 1,2
-
+            link(1) = Link('d', 0.01, 'a', -0.04, 'alpha', pi/2, 'offset', pi/2); 
             link(2) = Link('theta', 0, 'a', a2-a1, 'alpha', pi/2, 'offset', -a2, 'prismatic', 'qlim', [a1, a2]);
 
             self.model = SerialLink(link, 'name', self.name);
