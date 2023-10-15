@@ -23,29 +23,15 @@ classdef WidowX250Gripper < RobotBaseClass
         function CreateModel(self)
             % Values from Diagram and Spec Sheet
             % https://www.trossenrobotics.com/docs/interbotix_xsarms/specifications/wx250s.html
-            
-            % Prismatic gripper joint DOESNT WORK YET PLEASE FIX
-            % theta: -90, d: 0, a: 0, alpha: 0,  offset: ?
-            % link(7) = Link([-pi / 2, 0, 0, 0, 0]); % PRISMATIC Link
-            % Prismatic joint limitations
-            % link(7).qlim = [0.03, 0.074];
 
-            %% DONT SEEM TO BE PRISMATIC JOINTS AND WILL HAVE TO MOST LIKELY
-            %% DO TWO FINGERS INSTEAD OF ONE GRIPPER
-        
-            link(1) = Prismatic('theta', 0, 'd', 0, 'a', 0, 'alpha', 0, 'qlim', 0, 'offset', 0);
-            link(2) = Prismatic('theta', 0, 'd', 0, 'a', 0, 'alpha', 0, 'qlim', 0, 'offset', 0);
-            
+            % Define DH parameters for the gripper finger
+            a1 = 0.03; % Link length
+            a2 = 0.074; % Link length
 
-            link(1).qlim = [0.03, 0.074];
-            link(2).qlim = [0.03, 0.074];
-            % link(3).qlim = [0.03, 0.074];
-            
+            link(1) = Link('d', 0.03, 'a', 0, 'alpha', -pi/2, 'offset', 0); % STL files: 1,2
 
-            link(1).offset = 0;
-            link(2).offset = pi/2;
-            % link(3).offset = 0;
-            
+            link(2) = Link('theta', -pi/2, 'a', a2-a1, 'alpha', pi/2, 'offset', 0, 'prismatic', 'qlim', [a1, a2]);
+            link(3) = Link('theta', -pi/2, 'a', a2-a1, 'alpha', pi/2, 'offset', 0, 'prismatic', 'qlim', [a1, a2]);
 
             self.model = SerialLink(link, 'name', self.name);
         end
