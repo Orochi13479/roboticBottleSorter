@@ -6,8 +6,8 @@ axis equal;
 
 % Force figure limits
 zlim([0, 2]);
-xlim([-2, 2]);
-ylim([-2, 2]);
+xlim([-2, 2]); % xlim([-4.2, 4.2]); <-- SHOULD PROBS MAKE SMALLER
+ylim([-2, 2]); % ylim([-2.5, 2.5]); <-- SHOULD PROBS MAKE SMALLER
 disp('Figure Created');
 
 % Robot Initialisations
@@ -20,13 +20,16 @@ X250Robot = WidowX250;
 WidowX250 = X250Robot.model;
 
 % Initialise and Plot the WidowX250 Gripper object
-X250Gripper = WidowX250Gripper;
-WidowX250Gripper = X250Gripper.model;
+X250GripperL = WidowX250Gripper;
+WidowX250GripperL = X250GripperL.model;
+X250GripperR = WidowX250Gripper;
+WidowX250GripperR = X250GripperR.model;
 
 % Reduce lag
 UR3e.delay = 0;
 WidowX250.delay = 0;
-WidowX250Gripper.delay = 0;
+WidowX250GripperL.delay = 0;
+WidowX250GripperR.delay = 0;
 
 disp('Robots Initialised');
 
@@ -51,13 +54,15 @@ WidowX250.base = rt2tr(armRotationMatrix1, translationVector1);
 UR3e.base = rt2tr(armRotationMatrix2, translationVector2);
 
 % Set Base of Gripper to End effector
-WidowX250Gripper.base = WidowX250.fkine(WidowX250.getpos()).T * trotx(pi) * transl(0, -0.233, 0);
+WidowX250GripperL.base = WidowX250.fkine(WidowX250.getpos()).T * trotx(pi) * troty(pi) * transl(0, -0.233, 0);
+WidowX250GripperR.base = WidowX250.fkine(WidowX250.getpos()).T * trotx(pi) * transl(0, -0.233, 0);
 
 
 % Assume starting position
 UR3e.animate(UR3e.getpos());
 WidowX250.animate(WidowX250.getpos());
-WidowX250Gripper.animate(WidowX250Gripper.getpos());
+WidowX250GripperL.animate(WidowX250GripperL.getpos());
+WidowX250GripperR.animate(WidowX250GripperR.getpos());
 
 disp('Robots Mounted');
 disp('Setup is complete');
@@ -76,7 +81,6 @@ surf([-4.3, -4.3; 4.3, 4.3] ...
 
 % Place objects in environment
 PlaceObject(fullfile(folderName, 'brownTable.ply'), [0, 0, 0]);
-PlaceObject(fullfile(folderName, 'plasticCup.ply'), [0.96, 0.6, TableDimensions(3)]);
 PlaceObject(fullfile(folderName, 'warningSign.ply'), [1.2, -1, 0]);
 PlaceObject(fullfile(folderName, 'assembledFence.ply'), [0.25, 0.7, -0.97]);
 
@@ -87,15 +91,25 @@ PlaceObject(fullfile(folderName, 'assembledFence.ply'), [0.25, 0.7, -0.97]);
 brickHeight = 0.034;
 tableHeight = TableDimensions(3);
 
-initBrickArray = [-0.4, -0.35, tableHeight; ...
-    -0.52, -0.325, tableHeight; ...
-    -0.7, -0.25, tableHeight; ...
-    -0.62, -0.25, tableHeight; ...
-    -0.735, -0.1, tableHeight; ...
-    -0.815, 0, tableHeight + brickHeight; ...
-    -0.815, 0, tableHeight; ...
-    -0.8, 0.15, tableHeight; ...
-    -0.65, 0.1, tableHeight];
+% 15 Cups to Start with
+initBrickArray = [; ...
+    -0.4, -0.3, tableHeight; ...
+    -0.52, -0.28, tableHeight; ...
+    -0.6, -0.22, tableHeight; ...
+    -0.52, -0.2, tableHeight; ...
+    -0.535, -0.1, tableHeight; ...
+    -0.615, 0, tableHeight; ...
+    -0.695, 0, tableHeight; ...
+    -0.4, 0.15, tableHeight; ...
+    -0.65, 0.1, tableHeight; ...
+    0.3, -0.35, tableHeight; ...
+    0.42, -0.325, tableHeight; ...
+    0.4, -0.25, tableHeight; ...
+    0.22, -0.25, tableHeight; ...
+    0.535, -0.1, tableHeight; ...
+    0.415, 0, tableHeight; ...
+    ];
+
 self.initBrickArray = initBrickArray;
 
 % Get brick vertices from ply file
@@ -115,8 +129,18 @@ disp('Plastic Cups Created');
 steps = 200;
 % WidowX250.teach()
 % UR3e.teach()
-% WidowX250Gripper.teach()
+% WidowX250GripperL.teach()
+% WidowX250GripperR.teach()
 input("Press Enter to See Beauty")
+
+
+% Gripper Trajectory Constant with all Uses
+qOpenGripper = [0, 0.03];
+qCloseGripper = [0, 0.05];
+closeTraj = jtraj(qOpenGripper, qCloseGripper, steps);
+openTraj = jtraj(qCloseGripper, qOpenGripper, steps);
+
+
 for i = 1:1
     if i == 1
         % Initial Starting Position
@@ -138,16 +162,32 @@ for i = 1:1
     for j = 1:steps
         WidowX250.animate(pickupTraj1(j, :));
         UR3e.animate(pickupTraj2(j, :));
-        WidowX250Gripper.base = WidowX250.fkine(WidowX250.getpos()).T * trotx(pi) * transl(0, -0.233, 0);
-        WidowX250Gripper.animate(WidowX250Gripper.getpos());
+        WidowX250GripperL.base = WidowX250.fkine(WidowX250.getpos()).T * trotx(pi) * troty(pi) * transl(0, -0.233, 0);
+        WidowX250GripperL.animate(WidowX250GripperL.getpos());
+        WidowX250GripperR.base = WidowX250.fkine(WidowX250.getpos()).T * trotx(pi) * transl(0, -0.233, 0);
+        WidowX250GripperR.animate(WidowX250GripperR.getpos());
+        drawnow();
+    end
+
+    for j = 1:steps
+        WidowX250GripperL.animate(closeTraj(j, :));
+        WidowX250GripperR.animate(closeTraj(j, :));
         drawnow();
     end
 
     for j = 1:steps
         WidowX250.animate(dropoffTraj1(j, :));
         UR3e.animate(dropoffTraj2(j, :));
-        WidowX250Gripper.base = WidowX250.fkine(WidowX250.getpos()).T * trotx(pi) * transl(0, -0.233, 0);
-        WidowX250Gripper.animate(WidowX250Gripper.getpos());
+        WidowX250GripperL.base = WidowX250.fkine(WidowX250.getpos()).T * trotx(pi) * troty(pi) * transl(0, -0.233, 0);
+        WidowX250GripperL.animate(WidowX250GripperL.getpos());
+        WidowX250GripperR.base = WidowX250.fkine(WidowX250.getpos()).T * trotx(pi) * transl(0, -0.233, 0);
+        WidowX250GripperR.animate(WidowX250GripperR.getpos());
+        drawnow();
+    end
+
+    for j = 1:steps
+        WidowX250GripperL.animate(openTraj(j, :));
+        WidowX250GripperR.animate(openTraj(j, :));
         drawnow();
     end
 
