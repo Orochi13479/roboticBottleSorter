@@ -61,8 +61,8 @@ WidowX250GripperR.base = WidowX250.fkine(WidowX250.getpos()).T * trotx(pi) * tra
 % Assume starting position
 UR3e.animate(UR3e.getpos());
 WidowX250.animate(WidowX250.getpos());
-WidowX250GripperL.animate(WidowX250GripperL.getpos());
-WidowX250GripperR.animate(WidowX250GripperR.getpos());
+WidowX250GripperL.animate([0, 0.03]);
+WidowX250GripperR.animate([0, 0.03]);
 
 disp('Robots Mounted');
 disp('Setup is complete');
@@ -92,16 +92,31 @@ brickHeight = 0.034;
 tableHeight = TableDimensions(3);
 
 % 15 Cups to Start with
-initBrickArray = [; ...
+% X250 has 8 Cups
+
+initBrickArrayX250 = [; ...
     -0.4, -0.3, tableHeight; ...
     -0.52, -0.28, tableHeight; ...
     -0.6, -0.22, tableHeight; ...
     -0.52, -0.2, tableHeight; ...
     -0.535, -0.1, tableHeight; ...
     -0.615, 0, tableHeight; ...
-    -0.695, 0, tableHeight; ...
     -0.4, 0.15, tableHeight; ...
     -0.65, 0.1, tableHeight; ...
+    ];
+
+
+for i = 1:length(initBrickArrayX250)
+    % Place the brick using PlaceObject
+    self.bricksX250(i) = PlaceObject(fullfile(folderName, 'plasticCup.ply'), [initBrickArrayX250(i, 1), initBrickArrayX250(i, 2), initBrickArrayX250(i, 3)]);
+    % Convert Coords to Transforms
+    self.initBrickTrX250(:, :, i) = transl(initBrickArrayX250(i, 1), initBrickArrayX250(i, 2), initBrickArrayX250(i, 3)+(brickHeight * 3))* troty(pi);
+end
+
+
+% UR3e has 7 Cups
+initBrickArrayUR3 = [; ...
+    0.6, 0.2, tableHeight; ...
     0.3, -0.35, tableHeight; ...
     0.42, -0.325, tableHeight; ...
     0.4, -0.25, tableHeight; ...
@@ -110,17 +125,45 @@ initBrickArray = [; ...
     0.415, 0, tableHeight; ...
     ];
 
-self.initBrickArray = initBrickArray;
+
+for i = 1:length(initBrickArrayUR3)
+    % Place the brick using PlaceObject
+    self.bricksUR3(i) = PlaceObject(fullfile(folderName, 'plasticCup.ply'), [initBrickArrayUR3(i, 1), initBrickArrayUR3(i, 2), initBrickArrayUR3(i, 3)]);
+    % Convert Coords to Transforms
+    self.initBrickTrUR3(:, :, i) = transl(initBrickArrayUR3(i, 1), initBrickArrayUR3(i, 2), initBrickArrayUR3(i, 3)+(brickHeight * 3)) * troty(pi);
+end
+
 
 % Get brick vertices from ply file
 [tri, self.brickVertices] = plyread(fullfile(folderName, 'plasticCup.ply'), 'tri');
 
-for i = 1:length(initBrickArray)
-    % Place the brick using PlaceObject
-    self.bricks(i) = PlaceObject(fullfile(folderName, 'plasticCup.ply'), [initBrickArray(i, 1), initBrickArray(i, 2), initBrickArray(i, 3)]);
-    % Convert Coords to Transforms
-    self.initBrickTr(:, :, i) = transl(initBrickArray(i, 1), initBrickArray(i, 2), initBrickArray(i, 3)+(brickHeight * 3)) * troty(pi);
+% Hardcode Final Brick Locations
+wallx = 0;
+wally = 0;
+
+finalBrickArray = [; ...
+    wallx + 0.135, wally, tableHeight; ...
+    wallx, wally, tableHeight; ...
+    wallx - 0.135, wally, tableHeight; ...
+    wallx + 0.135, wally, tableHeight + brickHeight; ...
+    wallx, wally, tableHeight + brickHeight; ...
+    wallx - 0.135, wally, tableHeight + brickHeight; ...
+    wallx + 0.135, wally, tableHeight + brickHeight + brickHeight; ...
+    wallx, wally, tableHeight + brickHeight + brickHeight; ...
+    wallx - 0.135, wally, tableHeight + brickHeight + brickHeight; ...
+    wallx - 0.135, wally, tableHeight + brickHeight; ...
+    wallx + 0.135, wally, tableHeight + brickHeight + brickHeight; ...
+    wallx, wally, tableHeight + brickHeight + brickHeight; ...
+    wallx - 0.135, wally, tableHeight + brickHeight + brickHeight; ...
+    wallx, wally, tableHeight + brickHeight + brickHeight; ...
+    wallx - 0.135, wally, tableHeight + brickHeight + brickHeight; ...
+    ];
+
+% Convert Final Coords to Transforms
+for i = 1:length(finalBrickArray)
+    self.finalBrickTr(:, :, i) = transl(finalBrickArray(i, 1), finalBrickArray(i, 2), finalBrickArray(i, 3)+(brickHeight * 3)) * trotx(pi) * trotz(pi/2);
 end
+
 
 disp('Plastic Cups Created');
 
@@ -141,27 +184,38 @@ closeTraj = jtraj(qOpenGripper, qCloseGripper, steps);
 openTraj = jtraj(qCloseGripper, qOpenGripper, steps);
 
 
-for i = 1:1
+for i = 1:(length(initBrickArrayUR3) + length(initBrickArrayX250))
     if i == 1
         % Initial Starting Position
-        qStart = zeros(1, WidowX250.n);
+        qStartX250 = zeros(1, WidowX250.n);
+        qStartUR3 = zeros(1, UR3e.n);
     else
-        % qStart = WidowX250.ikcon(fin)
+        qStartX250 = WidowX250.ikcon(self.finalBrickTr(:, :, i-1))
+        qStartUR3 = UR3e.ikcon(self.finalBrickTr(:, :, i-1))
     end
-    init1 = deg2rad([-15, 42.3, -5.9, -6.17, 52.4, -50.3]);
-    fin1 = deg2rad([-180, -14.6, 26.9, 2.18, 76.3, -24.4]);
-    init2 = deg2rad([0, -20, 40, -110, -90, 0]);
-    fin2 = deg2rad([-180, -50, 90, -130, -90, 0]);
-    % qInitial = WidowX250.fkine(init)
-    % qFinal = WidowX250.fkine(fin)
-    pickupTraj1 = jtraj(qStart, init1, steps);
-    dropoffTraj1 = jtraj(init1, fin1, steps);
-    pickupTraj2 = jtraj(qStart, init2, steps);
-    dropoffTraj2 = jtraj(init2, fin2, steps);
+
+    % init1 = deg2rad([-15, 42.3, -5.9, -6.17, 52.4, -50.3]);
+    % fin1 = deg2rad([-180, -14.6, 26.9, 2.18, 76.3, -24.4]);
+    % init2 = deg2rad([0, -20, 40, -110, -90, 0]);
+    % fin2 = deg2rad([-180, -50, 90, -130, -90, 0]);
+    % pickupTraj1 = jtraj(qStart, init1, steps);
+    % dropoffTraj1 = jtraj(init1, fin1, steps);
+    % pickupTraj2 = jtraj(qStart, init2, steps);
+    % dropoffTraj2 = jtraj(init2, fin2, steps);
+
+    qInitialX250 = WidowX250.ikcon(self.initBrickTrX250(:, :, i))
+    qFinalX250 = WidowX250.ikcon(self.finalBrickTr(:, :, i))
+    pickupTrajX250 = jtraj(qStartX250, qInitialX250, steps);
+    dropoffTrajX250 = jtraj(qInitialX250, qFinalX250, steps);
+
+    qInitialUR3 = UR3e.ikcon(self.initBrickTrUR3(:, :, i))
+    qFinalUR3 = UR3e.ikcon(self.finalBrickTr(:, :, i))
+    pickupTrajUR3 = jtraj(qStartUR3, qInitialUR3, steps);
+    dropoffTrajUR3 = jtraj(qInitialUR3, qFinalUR3, steps);
 
     for j = 1:steps
-        WidowX250.animate(pickupTraj1(j, :));
-        UR3e.animate(pickupTraj2(j, :));
+        WidowX250.animate(pickupTrajX250(j, :));
+        UR3e.animate(pickupTrajUR3(j, :));
         WidowX250GripperL.base = WidowX250.fkine(WidowX250.getpos()).T * trotx(pi) * troty(pi) * transl(0, -0.233, 0);
         WidowX250GripperL.animate(WidowX250GripperL.getpos());
         WidowX250GripperR.base = WidowX250.fkine(WidowX250.getpos()).T * trotx(pi) * transl(0, -0.233, 0);
@@ -176,8 +230,8 @@ for i = 1:1
     end
 
     for j = 1:steps
-        WidowX250.animate(dropoffTraj1(j, :));
-        UR3e.animate(dropoffTraj2(j, :));
+        WidowX250.animate(dropoffTrajX250(j, :));
+        UR3e.animate(dropoffTrajUR3(j, :));
         WidowX250GripperL.base = WidowX250.fkine(WidowX250.getpos()).T * trotx(pi) * troty(pi) * transl(0, -0.233, 0);
         WidowX250GripperL.animate(WidowX250GripperL.getpos());
         WidowX250GripperR.base = WidowX250.fkine(WidowX250.getpos()).T * trotx(pi) * transl(0, -0.233, 0);
