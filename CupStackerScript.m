@@ -2,7 +2,13 @@ clear all;
 clc;
 clf;
 hold on;
-% axis equal;
+axis equal;
+
+% Force figure limits
+zlim([0, 2]);
+xlim([-2, 2]);
+ylim([-2, 2]);
+disp('Figure Created');
 
 % Robot Initialisations
 % Initialise and Plot the UR3e object
@@ -26,30 +32,26 @@ disp('Robots Initialised');
 
 % Manipulate the WidowX250 Base If custom position e.g. On top of a table
 % Gather default rotation and translation matrices
-[armRotationMatrix, armTranslationVector] = tr2rt(WidowX250.base);
+[armRotationMatrix1, armTranslationVector1] = tr2rt(WidowX250.base);
+[armRotationMatrix2, armTranslationVector2] = tr2rt(UR3e.base);
 
 % Translate along each axis
-translationVector = [0.65, 0, 0];
+translationVector1 = [-0.3, 0, 0.5];
+translationVector2 = [0.3, 0, 0.5];
 
-% Specify the rotation angle in radians (90 degrees)
-angle = pi / 2;
+% Specify the rotation angle in radians
+angle = pi;
 
-% Create a rotation matrix for the X-axis rotation
-Rx = [1, 0, 0; ...
-    0, cos(angle), -sin(angle); ...
-    0, sin(angle), cos(angle)];
-
+% Create a rotation matrix for the Z-axis rotation
 Rz = [cos(angle), -sin(angle), 0; ...
     sin(angle), cos(angle), 0; ...
     0, 0, 1];
 
-% Place Base WidowX250 Up
-% Apply the X-axis rotation
-desiredBaseMatrix = rt2tr(armRotationMatrix, translationVector);
-WidowX250.base = desiredBaseMatrix;
+WidowX250.base = rt2tr(armRotationMatrix1, translationVector1);
+UR3e.base = rt2tr(armRotationMatrix2, translationVector2);
 
 % Set Base of Gripper to End effector
-WidowX250Gripper.base = WidowX250.fkine(WidowX250.getpos()).T* trotx(pi) * transl(0,-0.236,0);
+WidowX250Gripper.base = WidowX250.fkine(WidowX250.getpos()).T * trotx(pi) * transl(0, -0.233, 0);
 
 
 % Assume starting position
@@ -59,6 +61,54 @@ WidowX250Gripper.animate(WidowX250Gripper.getpos());
 
 disp('Robots Mounted');
 disp('Setup is complete');
+
+%% Environment
+folderName = 'data';
+
+% Environment - Table dimensions
+TableDimensions = [2.1, 1.4, 0.5]; %[Length, Width, Height]
+
+% Concrete floor
+surf([-4.3, -4.3; 4.3, 4.3] ...
+    , [-2.2, 2.2; -2.2, 2.2] ...
+    , [0.01, 0.01; 0.01, 0.01] ...
+    , 'CData', imread(fullfile(folderName, 'concrete.jpg')), 'FaceColor', 'texturemap');
+
+% Place objects in environment
+PlaceObject(fullfile(folderName, 'brownTable.ply'), [0, 0, 0]);
+PlaceObject(fullfile(folderName, 'plasticCup.ply'), [0.96, 0.6, TableDimensions(3)]);
+PlaceObject(fullfile(folderName, 'warningSign.ply'), [1.2, -1, 0]);
+PlaceObject(fullfile(folderName, 'assembledFence.ply'), [0.25, 0.7, -0.97]);
+
+% PlaceObject('emergencyStopButton.ply', [0.96, 0.6, TableDimensions(3)]);
+
+%% Place Movable objects
+% Create Bricks and Place Randomly
+brickHeight = 0.034;
+tableHeight = TableDimensions(3);
+
+initBrickArray = [-0.4, -0.35, tableHeight; ...
+    -0.52, -0.325, tableHeight; ...
+    -0.7, -0.25, tableHeight; ...
+    -0.62, -0.25, tableHeight; ...
+    -0.735, -0.1, tableHeight; ...
+    -0.815, 0, tableHeight + brickHeight; ...
+    -0.815, 0, tableHeight; ...
+    -0.8, 0.15, tableHeight; ...
+    -0.65, 0.1, tableHeight];
+self.initBrickArray = initBrickArray;
+
+% Get brick vertices from ply file
+[tri, self.brickVertices] = plyread(fullfile(folderName, 'plasticCup.ply'), 'tri');
+
+for i = 1:length(initBrickArray)
+    % Place the brick using PlaceObject
+    self.bricks(i) = PlaceObject(fullfile(folderName, 'plasticCup.ply'), [initBrickArray(i, 1), initBrickArray(i, 2), initBrickArray(i, 3)]);
+    % Convert Coords to Transforms
+    self.initBrickTr(:, :, i) = transl(initBrickArray(i, 1), initBrickArray(i, 2), initBrickArray(i, 3)+(brickHeight * 3)) * troty(pi);
+end
+
+disp('Plastic Cups Created');
 
 %% Begin operation
 % SMOOTH SYNCRONOUS MOVEMENT OF BOTH ROBOTS ACHIEVED
@@ -88,7 +138,7 @@ for i = 1:1
     for j = 1:steps
         WidowX250.animate(pickupTraj1(j, :));
         UR3e.animate(pickupTraj2(j, :));
-        WidowX250Gripper.base = WidowX250.fkine(WidowX250.getpos()).T* trotx(pi) * transl(0,-0.236,0);
+        WidowX250Gripper.base = WidowX250.fkine(WidowX250.getpos()).T * trotx(pi) * transl(0, -0.233, 0);
         WidowX250Gripper.animate(WidowX250Gripper.getpos());
         drawnow();
     end
@@ -96,7 +146,7 @@ for i = 1:1
     for j = 1:steps
         WidowX250.animate(dropoffTraj1(j, :));
         UR3e.animate(dropoffTraj2(j, :));
-        WidowX250Gripper.base = WidowX250.fkine(WidowX250.getpos()).T* trotx(pi) * transl(0,-0.236,0);
+        WidowX250Gripper.base = WidowX250.fkine(WidowX250.getpos()).T * trotx(pi) * transl(0, -0.233, 0);
         WidowX250Gripper.animate(WidowX250Gripper.getpos());
         drawnow();
     end

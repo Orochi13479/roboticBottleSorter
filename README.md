@@ -13,3 +13,6 @@ To Launch the MATLAB Simulator run the code from the MATLAB <em>CupStacker.m</em
 ```
 test
 ```
+
+### IMPORTANT ###
+Inside the robotics toolbox please delete line 118 in the animate.m file within the @Seriallink Dir
