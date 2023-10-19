@@ -35,3 +35,4 @@ while isBlinking
     end
 end
 
+% https://www.youtube.com/watch?v=wLrVQpzva6s&ab_channel=MATLAB
