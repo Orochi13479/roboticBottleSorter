@@ -181,7 +181,7 @@ disp('Plastic Cups Created');
 %% Begin operation
 % SMOOTH SYNCRONOUS MOVEMENT OF BOTH ROBOTS ACHIEVED
 steps = 200;
-% WidowX250.teach()
+WidowX250.teach()
 % UR3e.teach()
 % WidowX250GripperL.teach()
 % WidowX250GripperR.teach()
