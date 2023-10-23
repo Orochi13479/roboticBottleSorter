@@ -61,8 +61,8 @@ WidowX250GripperR.base = WidowX250.fkine(WidowX250.getpos()).T * trotx(pi) * tra
 % Assume starting position
 UR3e.animate(UR3e.getpos());
 WidowX250.animate(WidowX250.getpos());
-WidowX250GripperL.animate([0, 0.03]);
-WidowX250GripperR.animate([0, 0.03]);
+WidowX250GripperL.animate(WidowX250GripperL.getpos());
+WidowX250GripperR.animate(WidowX250GripperR.getpos());
 
 disp('Robots Mounted');
 disp('Setup is complete');
@@ -178,13 +178,12 @@ end
 
 disp('Plastic Cups Created');
 
-%% Collision Checker
 
 
 %% Begin operation
 % SMOOTH SYNCRONOUS MOVEMENT OF BOTH ROBOTS ACHIEVED
 steps = 200;
-WidowX250.teach()
+% WidowX250.teach()
 % UR3e.teach()
 % WidowX250GripperL.teach()
 % WidowX250GripperR.teach()
@@ -216,6 +215,8 @@ for i = 1:(length(initCupArrayUR3) + length(initCupArrayX250))
     % pickupTraj2 = jtraj(qStart, init2, steps);
     % dropoffTraj2 = jtraj(init2, fin2, steps);
 
+
+
     qInitialX250 = WidowX250.ikcon(self.initCupTrX250(:, :, i))
     qFinalX250 = WidowX250.ikcon(self.finalCupTr(:, :, i))
     pickupTrajX250 = jtraj(qStartX250, qInitialX250, steps);
@@ -225,6 +226,51 @@ for i = 1:(length(initCupArrayUR3) + length(initCupArrayX250))
     qFinalUR3 = UR3e.ikcon(self.finalCupTr(:, :, i))
     pickupTrajUR3 = jtraj(qStartUR3, qInitialUR3, steps);
     dropoffTrajUR3 = jtraj(qInitialUR3, qFinalUR3, steps);
+
+    %% Collision Checker #1, not finished yet, need to test with whole movement finished
+    for j = 1:steps
+        collision = false;
+        collisionPoints = [];
+        qMatrix = WidowX250.getpos();
+
+        for qIndex = 1:size(qMatrix, 1)
+            disp('Entering Check Collisions #1');
+            % Get the transform of every joint (i.e., start and end of every link)
+            tr = WidowX250.getpos();
+
+            % Initialize variables for this configuration
+            configCollision = false;
+            configCollisionPoints = [];
+
+            % Go through each link and also each triangle face
+            for i = 1 : size(tr, 3) - 1
+                for faceIndex = 1:size(faces, 1)
+                    vertOnPlane = vertex(faces(faceIndex, 1)', :);
+                    [intersectP, check] = LinePlaneIntersection(faceNormals(faceIndex, :), vertOnPlane, tr(1:3, 4, i)', tr(1:3, 4, i + 1)');
+                    disp('No Collisions #1');
+                    if check == 1 && IsIntersectionPointInsideTriangle(intersectP, vertex(faces(faceIndex, :)', :))
+                        configCollision = true;
+                        configCollisionPoints = [configCollisionPoints; intersectP];
+                        disp('Collision Detected #1 at', WidowX250.getpos());
+                    end
+                end
+            end
+
+            % If this configuration is in collision, try to find a new trajectory
+            if configCollision
+                collision = true;
+                collisionPoints = [collisionPoints; configCollisionPoints];
+
+
+                % Implement a collision avoidance strategy here to find a new trajectory
+                % For example, generate a random non-colliding configuration
+
+                % Replace the configuration in the trajectory
+                % newTrajectory(qIndex, :) = newConfig;
+            end
+        end
+
+    end
 
     for j = 1:steps
         WidowX250.animate(pickupTrajX250(j, :));
@@ -236,11 +282,56 @@ for i = 1:(length(initCupArrayUR3) + length(initCupArrayX250))
         drawnow();
     end
 
+    %% Collision Checker #2, not finished yet, need to test with whole movement finished
     for j = 1:steps
-        WidowX250GripperL.animate(closeTraj(j, :));
-        WidowX250GripperR.animate(closeTraj(j, :));
-        drawnow();
+        collision = false;
+        collisionPoints = [];
+        qMatrix = WidowX250.getpos();
+
+        for qIndex = 1:size(qMatrix, 1)
+            disp('Entering Check Collisions #2');
+            % Get the transform of every joint (i.e., start and end of every link)
+            tr = WidowX250.getpos();
+
+            % Initialize variables for this configuration
+            configCollision = false;
+            configCollisionPoints = [];
+
+            % Go through each link and also each triangle face
+            for i = 1 : size(tr, 3) - 1
+                for faceIndex = 1:size(faces, 1)
+                    vertOnPlane = vertex(faces(faceIndex, 1)', :);
+                    [intersectP, check] = LinePlaneIntersection(faceNormals(faceIndex, :), vertOnPlane, tr(1:3, 4, i)', tr(1:3, 4, i + 1)');
+                    disp('No Collisions #2');
+                    if check == 1 && IsIntersectionPointInsideTriangle(intersectP, vertex(faces(faceIndex, :)', :))
+                        configCollision = true;
+                        configCollisionPoints = [configCollisionPoints; intersectP];
+                        disp('Collision Detected #2 at', WidowX250.getpos());
+                    end
+                end
+            end
+
+            % If this configuration is in collision, try to find a new trajectory
+            if configCollision
+                collision = true;
+                collisionPoints = [collisionPoints; configCollisionPoints];
+
+
+                % Implement a collision avoidance strategy here to find a new trajectory
+                % For example, generate a random non-colliding configuration
+
+                % Replace the configuration in the trajectory
+                % newTrajectory(qIndex, :) = newConfig;
+            end
+        end
+
     end
+
+    % for j = 1:steps
+    %     WidowX250GripperL.animate(closeTraj(j, :));
+    %     WidowX250GripperR.animate(closeTraj(j, :));
+    %     drawnow();
+    % end
 
     for j = 1:steps
         WidowX250.animate(dropoffTrajX250(j, :));
@@ -252,10 +343,10 @@ for i = 1:(length(initCupArrayUR3) + length(initCupArrayX250))
         drawnow();
     end
 
-    for j = 1:steps
-        WidowX250GripperL.animate(openTraj(j, :));
-        WidowX250GripperR.animate(openTraj(j, :));
-        drawnow();
-    end
+    % for j = 1:steps
+    %     WidowX250GripperL.animate(openTraj(j, :));
+    %     WidowX250GripperR.animate(openTraj(j, :));
+    %     drawnow();
+    % end
 
 end
