@@ -178,6 +178,9 @@ end
 
 disp('Plastic Cups Created');
 
+%% Collision Checker
+
+
 %% Begin operation
 % SMOOTH SYNCRONOUS MOVEMENT OF BOTH ROBOTS ACHIEVED
 steps = 200;
@@ -186,7 +189,6 @@ WidowX250.teach()
 % WidowX250GripperL.teach()
 % WidowX250GripperR.teach()
 input("Press Enter to See Beauty")
-
 
 % Gripper Trajectory Constant with all Uses
 qOpenGripper = [0, 0.03];

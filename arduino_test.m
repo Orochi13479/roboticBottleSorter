@@ -2,7 +2,7 @@ clc;
 close all;
 clear;
 
-ledPin = 'D4';
+ledPin = 'D3';
 buttonPin = 'D2';
 deltaT_blink = 0.5;
 
