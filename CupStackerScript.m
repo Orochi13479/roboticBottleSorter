@@ -226,7 +226,7 @@ for i = 1:(length(initCupArrayUR3) + length(initCupArrayX250))
     % pickupTraj2 = jtraj(qStart, init2, steps);
     % dropoffTraj2 = jtraj(init2, fin2, steps);
 
-    
+
 
     qInitialX250 = WidowX250.ikcon(self.initCupTrX250(:, :, i))
     qFinalX250 = WidowX250.ikcon(self.finalCupTr(:, :, i))
@@ -238,27 +238,24 @@ for i = 1:(length(initCupArrayUR3) + length(initCupArrayX250))
     pickupTrajUR3 = jtraj(qStartUR3, qInitialUR3, steps);
     dropoffTrajUR3 = jtraj(qInitialUR3, qFinalUR3, steps);
 
-    for j = 1:steps
-        robot = WidowX250;
-        [collision, collisionPoints, newTrajectory] = CollisionCheckAndAvoid(robot, qMatrix, self.cupVertices);        
+    for j = 1:steps        
         WidowX250.animate(pickupTrajX250(j, :));
         UR3e.animate(pickupTrajUR3(j, :));
         WidowX250GripperL.base = WidowX250.fkine(WidowX250.getpos()).T * trotx(pi) * troty(pi) * transl(0, -0.233, 0);
         WidowX250GripperL.animate(WidowX250GripperL.getpos());
         WidowX250GripperR.base = WidowX250.fkine(WidowX250.getpos()).T * trotx(pi) * transl(0, -0.233, 0);
         WidowX250GripperR.animate(WidowX250GripperR.getpos());
+        % CollisionCheck(WidowX250, self.cupVertices);
         drawnow();
     end
 
     for j = 1:steps
-        % CollisionCheckAndAvoid;
         WidowX250GripperL.animate(closeTraj(j, :));
         WidowX250GripperR.animate(closeTraj(j, :));
         drawnow();
     end
 
     for j = 1:steps
-        % CollisionCheckAndAvoid();
         WidowX250.animate(dropoffTrajX250(j, :));
         UR3e.animate(dropoffTrajUR3(j, :));
         WidowX250GripperL.base = WidowX250.fkine(WidowX250.getpos()).T * trotx(pi) * troty(pi) * transl(0, -0.233, 0);
@@ -269,7 +266,6 @@ for i = 1:(length(initCupArrayUR3) + length(initCupArrayX250))
     end
 
     for j = 1:steps
-        % CollisionCheckAndAvoid;
         WidowX250GripperL.animate(openTraj(j, :));
         WidowX250GripperR.animate(openTraj(j, :));
         drawnow();
@@ -278,53 +274,83 @@ end
 
 
 %% Collision Checker and Avoidance Function
-function [collision, collisionPoints, newTrajectory] = CollisionCheckAndAvoid(robot, qMatrix, cupVertices)
-    % Initialize variables
-    collision = false;
-    collisionPoints = [];
-    newTrajectory = qMatrix;
+function CollisionCheck(robot, cupVertices)
+    % Creating transform for every joint
+    q = robot.getpos();
+    tr = zeros(4, 4, robot.n + 1);
+    tr(:,:,1) = robot.base;
+    L = robot.links;
+    for i = 1 : robot.n
+        tr(:,:,i+1) = tr(:,:,i) * trotz(q(i) + L(i).offset) * transl(0, 0, L(i).d) * transl(L(i).a, 0, 0) * trotx(L(i).alpha);
+    end
 
-    % Define face information
-    cupFaces = delaunay(cupVertices);
+    for i = 1 : size(tr, 3) - 1
+        for vertexIndex = 1:size(cupVertices, 1)
+            vertOnPlane = cupVertices(vertexIndex, :);
+            [intersectP, check] = LinePlaneIntersection([0, 0, 1], vertOnPlane, tr(1:3, 4, i)', tr(1:3, 4, i + 1)');
+            if check == 1 && IsIntersectionPointInsideTriangle(intersectP, cupVertices)
+                plot3(intersectP(1), intersectP(2), intersectP(3), 'g*');
+                disp('Collision');
+            end
+        end
+    end
+
+% Go through until there are no step sizes larger than 1 degree
+q1 = robot.getpos();
+q2 = deg2rad([81.5 -12 50 51 90 0]);
+
+steps = 2;
+
+while ~isempty(find(1 < abs(diff(rad2deg(jtraj(q1,q2,steps)))),1))
+    steps = steps + 1;
+end
+qMatrix = jtraj(q1,q2,steps);
+
+% Check each of the joint states in the trajectory to work out which ones are in collision.
+% Return a logical vector of size steps which contains 0 = no collision (safe)
+% and 1 = yes collision (Unsafe).
+
+result = true(steps,1);
+for i = 1: steps
+    % fprintf("Step: %d\n", i)
+    result(i) = IsCollision(robot,qMatrix(i,:),cupVertices,false);
+    % robot.animate(qMatrix(i,:));
+    % drawnow();
+    pause(0.02);
+    if result(i) == true
+        disp('UNSAFE: Object detected. Robot stopped')
+        break
+    end
+end
+end
+
+%% IsCollision
+% Given a robot model (robot), and trajectory (i.e. joint state vector) (qMatrix)
+% and triangle obstacles in the environment (faces,vertex,faceNormals)
+function result = IsCollision(robot, qMatrix, cupVertices, returnOnceFound)
+    if nargin < 4
+        returnOnceFound = true;
+    end
+    result = false;
 
     for qIndex = 1:size(qMatrix, 1)
-        % Get the transform of every joint (i.e., start and end of every link)
+        % Get the transform of every joint (i.e. start and end of every link)
         tr = GetLinkPoses(qMatrix(qIndex, :), robot);
 
-        % Initialize variables for this configuration
-        configCollision = false;
-        configCollisionPoints = [];
-
-        % Go through each link
-        for i = 1 : size(tr, 3) - 1
-            for faceIndex = 1:size(cupFaces, 1)
-                % Define the vertices of the current face
-                faceVertices = cupVertices(cupFaces(faceIndex, :), :);
-
-                % Calculate the face normal
-                faceNormal = cross(faceVertices(2, :) - faceVertices(1, :), faceVertices(3, :) - faceVertices(1, :));
-                faceNormal = faceNormal / norm(faceNormal);
-
-                % Check for collision with the current face
-                for vertexIndex = 1:size(tr, 3)
-                    vertOnPlane = faceVertices(1, :);
-                    [intersectP, check] = LinePlaneIntersection(faceNormal, vertOnPlane, tr(1:3, 4, i)', tr(1:3, 4, i + 1)');
-                    if check == 1 && IsIntersectionPointInsideTriangle(intersectP, faceVertices)
-                        % Check for collision with the cup face
-                        if IsPointInsideTriangle(intersectP, faceVertices)
-                            configCollision = true;
-                            configCollisionPoints = [configCollisionPoints; intersectP];
-                        end
+        % Go through each link and also each cup vertex
+        for i = 1:size(tr, 3) - 1
+            for vertexIndex = 1:size(cupVertices, 1)
+                vertOnPlane = cupVertices(vertexIndex, :);
+                [intersectP, check] = LinePlaneIntersection([0, 0, 1], vertOnPlane, tr(1:3, 4, i)', tr(1:3, 4, i + 1)');
+                if check == 1 && IsIntersectionPointInsideTriangle(intersectP, cupVertices)
+                    plot3(intersectP(1), intersectP(2), intersectP(3), 'g*');
+                    disp('Collision');
+                    result = true;
+                    if returnOnceFound
+                        return
                     end
                 end
             end
-        end
-
-        if configCollision
-            disp("Calculating New Trajectory for Collision Avoidance")
-            collisionPoints = [collisionPoints; configCollisionPoints];
-            collision = true;
-            % Implement Collision Avoidance Trajectory
         end
     end
 end
@@ -338,42 +364,76 @@ transforms(:,:,1) = robot.base;
 
 for i = 1:length(links)
     L = links(1,i);
-    
+
     current_transform = transforms(:,:, i);
-    
-    current_transform = current_transform * trotz(q(1,i) + L.offset) * ...
-    transl(0,0, L.d) * transl(L.a,0,0) * trotx(L.alpha);
+
+    current_transform = current_transform * trotz(q(1,i) + L.offset) * transl(0,0, L.d) * transl(L.a,0,0) * trotx(L.alpha);
     transforms(:,:,i + 1) = current_transform;
 end
 end
 
 
 %% FineInterpolation
-% Use results from Q2.6 to keep calling jtraj until all step sizes are
-% smaller than a given max step size
 function qMatrix = FineInterpolation(q1, q2, maxStepRadians)
-    if nargin < 3
-        maxStepRadians = deg2rad(1);
-    end
+if nargin < 3
+    maxStepRadians = deg2rad(1);
+end
 
-    steps = 2;
-    while ~isempty(find(maxStepRadians < abs(diff(jtraj(q1, q2, steps))), 1))
-        steps = steps + 1;
-    end
-    qMatrix = jtraj(q1, q2, steps);
+steps = 2;
+while ~isempty(find(maxStepRadians < abs(diff(jtraj(q1, q2, steps))), 1))
+    steps = steps + 1;
+end
+qMatrix = jtraj(q1, q2, steps);
 end
 
 %% InterpolateWaypointRadians
 % Given a set of waypoints, finely interpolate them
 function qMatrix = InterpolateWaypointRadians(waypointRadians, maxStepRadians)
-    if nargin < 2
-        maxStepRadians = deg2rad(1);
-    end
+if nargin < 2
+    maxStepRadians = deg2rad(1);
+end
 
-    qMatrix = [];
-    for i = 1: size(waypointRadians, 1) - 1
-        qMatrix = [qMatrix; FineInterpolation(waypointRadians(i, :), waypointRadians(i + 1, :), maxStepRadians)]; %#ok<AGROW>
-    end
+qMatrix = [];
+for i = 1: size(waypointRadians, 1) - 1
+    qMatrix = [qMatrix; FineInterpolation(waypointRadians(i, :), waypointRadians(i + 1, :), maxStepRadians)]; %#ok<AGROW>
+end
+end
+
+
+%% IsIntersectionPointInsideTriangle
+% Given a point which is known to be on the same plane as the triangle
+% determine if the point is
+% inside (result == 1) or
+% outside a triangle (result ==0 )
+function result = IsIntersectionPointInsideTriangle(intersectP,triangleVerts)
+
+u = triangleVerts(2,:) - triangleVerts(1,:);
+v = triangleVerts(3,:) - triangleVerts(1,:);
+
+uu = dot(u,u);
+uv = dot(u,v);
+vv = dot(v,v);
+
+w = intersectP - triangleVerts(1,:);
+wu = dot(w,u);
+wv = dot(w,v);
+
+D = uv * uv - uu * vv;
+
+% Get and test parametric coords (s and t)
+s = (uv * wv - vv * wu) / D;
+if (s < 0.0 || s > 1.0)        % intersectP is outside Triangle
+    result = 0;
+    return;
+end
+
+t = (uv * wu - uu * wv) / D;
+if (t < 0.0 || (s + t) > 1.0)  % intersectP is outside Triangle
+    result = 0;
+    return;
+end
+
+result = 1;                      % intersectP is in Triangle
 end
 
 
