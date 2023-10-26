@@ -15,4 +15,21 @@ test
 ```
 
 ### IMPORTANT ###
-Inside the robotics toolbox please delete line 118 in the animate.m file within the @Seriallink Dir
+Inside the robotics toolbox please delete/comment out line 117-118 in the animate.m file within the rvctools/robot/@Seriallink/animate.m Directory.
+```
+if q(L) > 0
+    set(h.pjoint(L), 'Matrix', diag([1 1 q(L) 1]));
+else
+    % if length is zero the matrix is singular and MATLAB complains
+    %error('Prismatic length must be > 0');
+end
+```
+Change to:
+```
+if q(L) > 0
+    % set(h.pjoint(L), 'Matrix', diag([1 1 q(L) 1]));
+else
+    % if length is zero the matrix is singular and MATLAB complains
+    %error('Prismatic length must be > 0');
+end
+```
