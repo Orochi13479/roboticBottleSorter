@@ -106,8 +106,8 @@ tableHeight = TableDimensions(3);
 % X250 has 8 Cups
 
 initCupArrayX250 = [; ...
-    -0.4, -0.3, tableHeight; ...
-    -0.52, -0.28, tableHeight; ...
+    -0.1, -0.2, tableHeight; ...
+    -0.1, 0.3, tableHeight; ...
     -0.6, -0.22, tableHeight; ...
     -0.52, -0.2, tableHeight; ...
     -0.535, -0.1, tableHeight; ...
@@ -138,7 +138,7 @@ end
 
 % UR3e has 7 Cups
 initCupArrayUR3 = [; ...
-    0.6, 0.2, tableHeight; ...
+    0.1, 0.2, tableHeight; ...
     0.3, -0.35, tableHeight; ...
     0.42, -0.325, tableHeight; ...
     0.4, -0.25, tableHeight; ...
@@ -200,6 +200,30 @@ steps = 200;
 % WidowX250GripperR.teach()
 input("Press Enter to See Beauty")
 
+% TEMPORARY FOR DEMO VIDEO
+% Calculate the desired end effector position and orientation
+desiredPositionPickupX250 = [-0.1, -0.2, tableHeight + (3 * 0.03)];
+desiredPositionPickupUR3 = [0.1, 0.2, tableHeight + (3 * 0.03)];
+desiredPositionDropoffX250 = [0.1, 0, tableHeight + (3 * 0.03)];
+desiredPositionDropoffUR3 = [0, 0, tableHeight + (3 * 0.03)];
+desiredOrientation = rotx(pi);
+
+% Combine the desired position and orientation to form the transformation matrix
+optimalEndEffectorPickupX250 = rt2tr(desiredOrientation, desiredPositionPickupX250);
+optimalEndEffectorPickupUR3 = rt2tr(desiredOrientation, desiredPositionPickupUR3);
+
+optimalEndEffectorDropoffX250 = rt2tr(desiredOrientation, desiredPositionDropoffX250);
+optimalEndEffectorDropoffUR3 = rt2tr(desiredOrientation, desiredPositionDropoffUR3);
+
+% Calculate the inverse kinematics solution for the desired end effector pose
+qCommonPickupX250 = WidowX250.ikcon(optimalEndEffectorPickupX250);
+qCommonPickupUR3 = UR3e.ikcon(optimalEndEffectorPickupUR3);
+
+qCommonDropoffX250 = WidowX250.ikcon(optimalEndEffectorDropoffX250);
+qCommonDropoffUR3 = UR3e.ikcon(optimalEndEffectorDropoffUR3);
+
+
+
 % Gripper Trajectory Constant with all Uses
 qOpenGripper = [0, 0.03];
 qCloseGripper = [0, 0.05];
@@ -213,8 +237,8 @@ for i = 1:(length(initCupArrayUR3) + length(initCupArrayX250))
         qStartX250 = zeros(1, WidowX250.n);
         qStartUR3 = zeros(1, UR3e.n);
     else
-        qStartX250 = WidowX250.ikcon(self.finalCupTr(:, :, i-1))
-        qStartUR3 = UR3e.ikcon(self.finalCupTr(:, :, i-1))
+        qStartX250 = WidowX250.ikcon(self.finalCupTr(:, :, i-1), qCommonDropoffX250)
+        qStartUR3 = UR3e.ikcon(self.finalCupTr(:, :, i-1),qCommonDropoffUR3 )
     end
 
     % init1 = deg2rad([-15, 42.3, -5.9, -6.17, 52.4, -50.3]); NOT FINISHED
@@ -228,13 +252,13 @@ for i = 1:(length(initCupArrayUR3) + length(initCupArrayX250))
 
 
 
-    qInitialX250 = WidowX250.ikcon(self.initCupTrX250(:, :, i))
-    qFinalX250 = WidowX250.ikcon(self.finalCupTr(:, :, i))
+    qInitialX250 = WidowX250.ikcon(self.initCupTrX250(:, :, i), qCommonPickupX250)
+    qFinalX250 = WidowX250.ikcon(self.finalCupTr(:, :, i), qCommonDropoffX250)
     pickupTrajX250 = jtraj(qStartX250, qInitialX250, steps);
     dropoffTrajX250 = jtraj(qInitialX250, qFinalX250, steps);
 
-    qInitialUR3 = UR3e.ikcon(self.initCupTrUR3(:, :, i))
-    qFinalUR3 = UR3e.ikcon(self.finalCupTr(:, :, i))
+    qInitialUR3 = UR3e.ikcon(self.initCupTrUR3(:, :, i),qCommonPickupUR3)
+    qFinalUR3 = UR3e.ikcon(self.finalCupTr(:, :, i),qCommonDropoffUR3)
     pickupTrajUR3 = jtraj(qStartUR3, qInitialUR3, steps);
     dropoffTrajUR3 = jtraj(qInitialUR3, qFinalUR3, steps);
 
