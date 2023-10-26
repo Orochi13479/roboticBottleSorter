@@ -91,6 +91,8 @@ surf([-4.3, -4.3; 4.3, 4.3] ...
     , 'CData', imread(fullfile(folderName, 'concrete.jpg')), 'FaceColor', 'texturemap');
 
 % Place objects in environment
+PlaceObject(fullfile(folderName, 'rubbishBin.ply'), [-0.8, 1.2, 0]);
+PlaceObject(fullfile(folderName, 'rubbishBin.ply'), [0, -0.8, 0]);
 PlaceObject(fullfile(folderName, 'brownTable.ply'), [0, 0, 0]);
 PlaceObject(fullfile(folderName, 'warningSign.ply'), [1.2, -1, 0]);
 PlaceObject(fullfile(folderName, 'assembledFence.ply'), [0.25, 0.7, -0.97]);
@@ -130,7 +132,7 @@ finalCupArrayX250 = [; ...
 
 for i = 1:length(initCupArrayX250)
     % Place the Cup using PlaceObject
-    self.cupX250(i) = PlaceObject(fullfile(folderName, 'plasticCup.ply'), [initCupArrayX250(i, 1), initCupArrayX250(i, 2), initCupArrayX250(i, 3)]);
+    self.cupX250(i) = PlaceObject(fullfile(folderName, 'sodaCan.ply'), [initCupArrayX250(i, 1), initCupArrayX250(i, 2), initCupArrayX250(i, 3)]);
     % Convert Coords to Transforms
     self.initCupTrX250(:, :, i) = transl(initCupArrayX250(i, 1), initCupArrayX250(i, 2), initCupArrayX250(i, 3)+(cupHeight * 3))* troty(pi);
 end
