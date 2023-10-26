@@ -63,6 +63,17 @@ UR3e.animate(UR3e.getpos());
 WidowX250.animate(WidowX250.getpos());
 WidowX250GripperL.animate([0, 0.03]);
 WidowX250GripperR.animate([0, 0.03]);
+% qMatrix = [];
+
+q1 = [-pi/4,0,0];
+q2 = [pi/4,0,0];
+steps = 2;
+while ~isempty(find(1 < abs(diff(rad2deg(jtraj(q1,q2,steps)))),1))
+    steps = steps + 1;
+end
+qMatrix = jtraj(q1,q2,steps);
+
+
 
 disp('Robots Mounted');
 disp('Setup is complete');
@@ -215,7 +226,7 @@ for i = 1:(length(initCupArrayUR3) + length(initCupArrayX250))
     % pickupTraj2 = jtraj(qStart, init2, steps);
     % dropoffTraj2 = jtraj(init2, fin2, steps);
 
-
+    
 
     qInitialX250 = WidowX250.ikcon(self.initCupTrX250(:, :, i))
     qFinalX250 = WidowX250.ikcon(self.finalCupTr(:, :, i))
@@ -228,7 +239,8 @@ for i = 1:(length(initCupArrayUR3) + length(initCupArrayX250))
     dropoffTrajUR3 = jtraj(qInitialUR3, qFinalUR3, steps);
 
     for j = 1:steps
-        CollisionCheckAndAvoid;
+        robot = WidowX250;
+        [collision, collisionPoints, newTrajectory] = CollisionCheckAndAvoid(robot, qMatrix, self.cupVertices);        
         WidowX250.animate(pickupTrajX250(j, :));
         UR3e.animate(pickupTrajUR3(j, :));
         WidowX250GripperL.base = WidowX250.fkine(WidowX250.getpos()).T * trotx(pi) * troty(pi) * transl(0, -0.233, 0);
@@ -239,14 +251,14 @@ for i = 1:(length(initCupArrayUR3) + length(initCupArrayX250))
     end
 
     for j = 1:steps
-        CollisionCheckAndAvoid;
+        % CollisionCheckAndAvoid;
         WidowX250GripperL.animate(closeTraj(j, :));
         WidowX250GripperR.animate(closeTraj(j, :));
         drawnow();
     end
 
     for j = 1:steps
-        CollisionCheckAndAvoid;
+        % CollisionCheckAndAvoid();
         WidowX250.animate(dropoffTrajX250(j, :));
         UR3e.animate(dropoffTrajUR3(j, :));
         WidowX250GripperL.base = WidowX250.fkine(WidowX250.getpos()).T * trotx(pi) * troty(pi) * transl(0, -0.233, 0);
@@ -257,66 +269,112 @@ for i = 1:(length(initCupArrayUR3) + length(initCupArrayX250))
     end
 
     for j = 1:steps
-        CollisionCheckAndAvoid;
+        % CollisionCheckAndAvoid;
         WidowX250GripperL.animate(openTraj(j, :));
         WidowX250GripperR.animate(openTraj(j, :));
         drawnow();
     end
 end
 
-%% Collision Checker function
-function [collision, collisionPoints, newTrajectory] = CollisionCheckAndAvoid(WidowX250, qMatrix, faces, vertex, faceNormals)
-% Initialize variables
-collision = false;
-collisionPoints = [];
-newTrajectory = 0;
 
-for qIndex = 1:size(qMatrix, 1)
-    % Get the transform of every joint (i.e., start and end of every link)
-    tr = GetLinkPoses(qMatrix(qIndex, :), WidowX250);
+%% Collision Checker and Avoidance Function
+function [collision, collisionPoints, newTrajectory] = CollisionCheckAndAvoid(robot, qMatrix, cupVertices)
+    % Initialize variables
+    collision = false;
+    collisionPoints = [];
+    newTrajectory = qMatrix;
 
-    % Initialize variables for this configuration
-    configCollision = false;
-    configCollisionPoints = [];
+    % Define face information
+    cupFaces = delaunay(cupVertices);
 
-    % Go through each link and also each triangle face
-    for i = 1 : size(tr, 3) - 1
-        for faceIndex = 1:size(faces, 1)
-            vertOnPlane = vertex(faces(faceIndex, 1)', :);
-            [intersectP, check] = LinePlaneIntersection(faceNormals(faceIndex, :), vertOnPlane, tr(1:3, 4, i)', tr(1:3, 4, i + 1)');
-            disp("No Collisions Detected")
-            if check == 1 && IsIntersectionPointInsideTriangle(intersectP, vertex(faces(faceIndex, :)', :))
-                configCollision = true;
-                configCollisionPoints = [configCollisionPoints; intersectP];
-                disp("Collision Detected")
+    for qIndex = 1:size(qMatrix, 1)
+        % Get the transform of every joint (i.e., start and end of every link)
+        tr = GetLinkPoses(qMatrix(qIndex, :), robot);
+
+        % Initialize variables for this configuration
+        configCollision = false;
+        configCollisionPoints = [];
+
+        % Go through each link
+        for i = 1 : size(tr, 3) - 1
+            for faceIndex = 1:size(cupFaces, 1)
+                % Define the vertices of the current face
+                faceVertices = cupVertices(cupFaces(faceIndex, :), :);
+
+                % Calculate the face normal
+                faceNormal = cross(faceVertices(2, :) - faceVertices(1, :), faceVertices(3, :) - faceVertices(1, :));
+                faceNormal = faceNormal / norm(faceNormal);
+
+                % Check for collision with the current face
+                for vertexIndex = 1:size(tr, 3)
+                    vertOnPlane = faceVertices(1, :);
+                    [intersectP, check] = LinePlaneIntersection(faceNormal, vertOnPlane, tr(1:3, 4, i)', tr(1:3, 4, i + 1)');
+                    if check == 1 && IsIntersectionPointInsideTriangle(intersectP, faceVertices)
+                        % Check for collision with the cup face
+                        if IsPointInsideTriangle(intersectP, faceVertices)
+                            configCollision = true;
+                            configCollisionPoints = [configCollisionPoints; intersectP];
+                        end
+                    end
+                end
             end
         end
-    end
 
-    if configCollision
-        disp("Calculating New Trajectory for Collision Avoidance")
-        collision = true;
-        collisionPoints = [collisionPoints; configCollisionPoints];
-        %Implement Collision Avoidance Trajectory
+        if configCollision
+            disp("Calculating New Trajectory for Collision Avoidance")
+            collisionPoints = [collisionPoints; configCollisionPoints];
+            collision = true;
+            % Implement Collision Avoidance Trajectory
+        end
     end
-end
 end
 
 %% Function for getting current link poses for Collision Checker
-function [ transforms ] = GetLinkPoses( q, WidowX250)
+function [ transforms ] = GetLinkPoses( q, robot)
 
-links = WidowX250.links;
+links = robot.links;
 transforms = zeros(4, 4, length(links) + 1);
-transforms(:,:,1) = WidowX250.base;
+transforms(:,:,1) = robot.base;
 
 for i = 1:length(links)
     L = links(1,i);
-
+    
     current_transform = transforms(:,:, i);
-
+    
     current_transform = current_transform * trotz(q(1,i) + L.offset) * ...
-        transl(0,0, L.d) * transl(L.a,0,0) * trotx(L.alpha);
+    transl(0,0, L.d) * transl(L.a,0,0) * trotx(L.alpha);
     transforms(:,:,i + 1) = current_transform;
 end
 end
+
+
+%% FineInterpolation
+% Use results from Q2.6 to keep calling jtraj until all step sizes are
+% smaller than a given max step size
+function qMatrix = FineInterpolation(q1, q2, maxStepRadians)
+    if nargin < 3
+        maxStepRadians = deg2rad(1);
+    end
+
+    steps = 2;
+    while ~isempty(find(maxStepRadians < abs(diff(jtraj(q1, q2, steps))), 1))
+        steps = steps + 1;
+    end
+    qMatrix = jtraj(q1, q2, steps);
+end
+
+%% InterpolateWaypointRadians
+% Given a set of waypoints, finely interpolate them
+function qMatrix = InterpolateWaypointRadians(waypointRadians, maxStepRadians)
+    if nargin < 2
+        maxStepRadians = deg2rad(1);
+    end
+
+    qMatrix = [];
+    for i = 1: size(waypointRadians, 1) - 1
+        qMatrix = [qMatrix; FineInterpolation(waypointRadians(i, :), waypointRadians(i + 1, :), maxStepRadians)]; %#ok<AGROW>
+    end
+end
+
+
 
