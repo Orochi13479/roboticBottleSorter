@@ -25,11 +25,20 @@ WidowX250GripperL = X250GripperL.model;
 X250GripperR = WidowX250Gripper;
 WidowX250GripperR = X250GripperR.model;
 
+%Initialise and Plot the UR3e Gripper object
+URGripperL = UR3eGripper;
+UR3eGripperL = URGripperL.model;
+URGripperR = UR3eGripper;
+UR3eGripperR = URGripperR.model;
+
 % Reduce lag
 UR3e.delay = 0;
 WidowX250.delay = 0;
 WidowX250GripperL.delay = 0;
 WidowX250GripperR.delay = 0;
+UR3eGripperL.delay = 0;
+UR3eGripperR.delay = 0;
+
 
 disp('Robots Initialised');
 
@@ -53,16 +62,22 @@ Rz = [cos(angle), -sin(angle), 0; ...
 WidowX250.base = rt2tr(armRotationMatrix1, translationVector1);
 UR3e.base = rt2tr(armRotationMatrix2, translationVector2);
 
-% Set Base of Gripper to End effector
+% Set Base of WidowX250 Gripper to End effector
 WidowX250GripperL.base = WidowX250.fkine(WidowX250.getpos()).T * trotx(-pi/2) * troty(pi) * transl(0, 0.023, 0);
 WidowX250GripperR.base = WidowX250.fkine(WidowX250.getpos()).T * trotx(-pi/2) * transl(0, 0.023, 0);
 
+% Set Base of UR3e Gripper to End effector
+UR3eGripperL.base = UR3e.fkine(UR3e.getpos).T*trotx(pi/2);
+UR3eGripperR.base = UR3e.fkine(UR3e.getpos).T*trotz(pi)*trotx(pi/2);
 
 % Assume starting position
 UR3e.animate(UR3e.getpos());
 WidowX250.animate(WidowX250.getpos());
 WidowX250GripperL.animate([0, 0.03]);
 WidowX250GripperR.animate([0, 0.03]);
+UR3eGripperL.animate([0, 0.03, 0]);
+UR3eGripperR.animate([0, 0.03, 0]);
+
 % qMatrix = [];
 
 q1 = [-pi / 4, 0, 0];
@@ -214,6 +229,11 @@ qCloseGripper = [0, 0.05];
 closeTraj = jtraj(qOpenGripper, qCloseGripper, steps/4);
 openTraj = jtraj(qCloseGripper, qOpenGripper, steps/4);
 
+UR3eqOpenGripper = [0, 0.03, 0];
+UR3eqCloseGripper = [0, 0.05, 0];
+UR3ecloseTraj = jtraj(UR3eqOpenGripper, UR3eqCloseGripper, steps/4);
+UR3eopenTraj = jtraj(UR3eqCloseGripper, UR3eqOpenGripper, steps/4);
+
 for i = 1:(length(finalCupArrayUR3))
     disp("Running...")
     if i == 1
@@ -242,13 +262,21 @@ for i = 1:(length(finalCupArrayUR3))
         WidowX250GripperL.animate(WidowX250GripperL.getpos());
         WidowX250GripperR.base = WidowX250.fkine(WidowX250.getpos()).T * trotx(-pi/2) * transl(0, 0.023, 0);
         WidowX250GripperR.animate(WidowX250GripperR.getpos());
+        UR3eGripperL.base = UR3e.fkine(UR3e.getpos()).T*trotx(pi/2);
+        UR3eGripperL.animate(UR3eGripperL.getpos());
+        UR3eGripperR.base = UR3e.fkine(UR3e.getpos()).T*trotz(pi)*trotx(pi/2);
+        UR3eGripperR.animate(UR3eGripperR.getpos());
         % CollisionCheck(WidowX250, self.cupVertices);
         drawnow();
     end
 
+    
+
     for j = 1:steps / 4
         WidowX250GripperL.animate(closeTraj(j, :));
         WidowX250GripperR.animate(closeTraj(j, :));
+        UR3eGripperL.animate(UR3ecloseTraj(j, :));
+        UR3eGripperR.animate(UR3ecloseTraj(j, :));
         drawnow();
     end
 
@@ -259,12 +287,18 @@ for i = 1:(length(finalCupArrayUR3))
         WidowX250GripperL.animate(WidowX250GripperL.getpos());
         WidowX250GripperR.base = WidowX250.fkine(WidowX250.getpos()).T * trotx(-pi/2) * transl(0, 0.023, 0);
         WidowX250GripperR.animate(WidowX250GripperR.getpos());
+        UR3eGripperL.base = UR3e.fkine(UR3e.getpos()).T*trotx(pi/2);
+        UR3eGripperL.animate(UR3eGripperL.getpos());
+        UR3eGripperR.base = UR3e.fkine(UR3e.getpos()).T*trotz(pi)*trotx(pi/2);
+        UR3eGripperR.animate(UR3eGripperR.getpos());
         drawnow();
     end
 
     for j = 1:steps / 4
         WidowX250GripperL.animate(openTraj(j, :));
         WidowX250GripperR.animate(openTraj(j, :));
+        UR3eGripperL.animate(UR3eopenTraj(j, :));
+        UR3eGripperR.animate(UR3eopenTraj(j, :));
         drawnow();
     end
 end
