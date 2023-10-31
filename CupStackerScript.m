@@ -110,6 +110,7 @@ PlaceObject(fullfile(folderName, 'rubbishBin2.ply'), [-0.08, 0.07, tableHeight])
 PlaceObject(fullfile(folderName, 'brownTable.ply'), [0, 0, 0]);
 PlaceObject(fullfile(folderName, 'warningSign.ply'), [1.2, -1, 0]);
 PlaceObject(fullfile(folderName, 'assembledFence.ply'), [0.25, 0.7, -0.97]);
+PlaceObject(fullfile(folderName, 'machineTable.ply'), [1.2, 1, 0]);
 
 % PlaceObject('emergencyStopButton.ply', [0.96, 0.6, TableDimensions(3)]);
 
