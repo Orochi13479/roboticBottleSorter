@@ -48,8 +48,11 @@ disp('Robots Initialised');
 [armRotationMatrix2, armTranslationVector2] = tr2rt(UR3e.base);
 
 % Translate along each axis
-translationVector1 = [-0.3, 0, 0.5];
-translationVector2 = [0.3, 0, 0.5];
+% translationVector1 = [-0.3, 0, 0.5];
+% translationVector2 = [0.3, 0, 0.5];
+
+translationVector1 = [-0.3, -0.84, 0.5];
+translationVector2 = [0.3, -0.84, 0.5];
 
 % Specify the rotation angle in radians
 angle = pi;
@@ -96,21 +99,26 @@ folderName = 'data';
 
 % Environment - Table dimensions
 TableDimensions = [2.1, 1.4, 0.5]; %[Length, Width, Height]
+wheeledTableDimensions = [0.75, 1.2, 0.52]; %[Length, Width, Height]
 tableHeight = TableDimensions(3);
 
 % Concrete floor
 surf([-4.3, -4.3; 4.3, 4.3] ...
     , [-2.2, 2.2; -2.2, 2.2] ...
     , [0.01, 0.01; 0.01, 0.01] ...
-    , 'CData', imread(fullfile(folderName, 'concrete.jpg')), 'FaceColor', 'texturemap');
+    , 'CData', imread(fullfile(folderName, 'woodenFloor.jpg')), 'FaceColor', 'texturemap');
 
 % Place objects in environment
 PlaceObject(fullfile(folderName, 'rubbishBin2.ply'), [-0.08, -0.05, tableHeight]);
 PlaceObject(fullfile(folderName, 'rubbishBin2.ply'), [-0.08, 0.07, tableHeight]);
 PlaceObject(fullfile(folderName, 'brownTable.ply'), [0, 0, 0]);
-PlaceObject(fullfile(folderName, 'warningSign.ply'), [1.2, -1, 0]);
-PlaceObject(fullfile(folderName, 'assembledFence.ply'), [0.25, 0.7, -0.97]);
-PlaceObject(fullfile(folderName, 'machineTable.ply'), [1.2, 1, 0]);
+PlaceObject(fullfile(folderName, 'warningSign.ply'), [1.2, -1.5, 0]);
+% PlaceObject(fullfile(folderName, 'assembledFence.ply'), [0.25, 0.7, -0.97]);
+PlaceObject(fullfile(folderName, 'wheeledTable.ply'), [-0.8, -0.75, 0]);
+PlaceObject(fullfile(folderName, 'tableChair.ply'), [-1.6, -0.25, 0]);
+PlaceObject(fullfile(folderName, 'wheelieBin.ply'), [1.2, 2, 0]);
+PlaceObject(fullfile(folderName, 'cabinet.ply'), [0, 2, 0]);
+PlaceObject(fullfile(folderName, 'cabinet.ply'), [-1, 2, 0]);
 
 % PlaceObject('emergencyStopButton.ply', [0.96, 0.6, TableDimensions(3)]);
 
