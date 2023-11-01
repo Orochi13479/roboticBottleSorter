@@ -9,9 +9,6 @@ jointNames = {'shoulder_pan_joint', 'shoulder_lift_joint', 'elbow_joint', 'wrist
 % Define the target joint states for each step
 targetJointStates = [
     [pi / 8, -pi / 2, 0, -pi / 2, 0, pi / 8];
-    [0, -0.2985, 0.5986, -1.85, -1.5708, 0];
-    [2.0944, -1.2462, 0.5986, -1.85, -1.5708, 0];
-    [2.0944, -0.2985, 0.5986, -1.85, -1.5708, 0];
     [pi / 8, -pi / 2, 0, -pi / 2, 0, pi / 8]
 ];  
 

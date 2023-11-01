@@ -2,14 +2,18 @@ close all;
 clear all;
 clc;
 
-r = UR3eGripper;
+r = UR3e;
 rModel = r.model;
 rModel.teach;
 
-% qPath = jtraj([0, 0.03], [0, 0.074], 200)
-% for i = 1:length(qPath)
-%     rModel.animate(qPath(i, :))
-%     drawnow();
-%     pause(0)
-% 
-% end
+% Fill each deg2rad function with the 6 joint states add however many
+% necessary the first and last should be the same as they are robot initial
+% position ALSO please use waypoints or the robot will go crazy!!
+targetJointStates = [
+    [pi / 8, -pi / 2, 0, -pi / 2, 0, pi / 8];
+    deg2rad([23,23,23,23,23,23]);
+    deg2rad([]);
+    deg2rad([]);
+    deg2rad([]);
+    [pi / 8, -pi / 2, 0, -pi / 2, 0, pi / 8]
+]  
