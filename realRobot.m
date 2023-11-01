@@ -24,7 +24,7 @@ bufferSeconds = 1; % Buffer time to account for message sending time
 for i = 1:size(targetJointStates, 1)
     % Get the current joint state
     jointStateSubscriber = rossubscriber('joint_states', 'sensor_msgs/JointState');
-    pause(2);
+    pause(1);
     currentJointState_321456 = (jointStateSubscriber.LatestMessage.Position)';
     currentJointState_123456 = [currentJointState_321456(3:-1:1), currentJointState_321456(4:6)];
 
@@ -41,14 +41,14 @@ for i = 1:size(targetJointStates, 1)
     
     % Set the goal header
     goal.Trajectory.Header.Seq = i;
-    goal.Trajectory.Header.Stamp = rostime('Now', 'system') + rosduration(bufferSeconds);
 
-    % Send the goal to the robot
-    sendGoal(client, goal);
-    
-    % Wait for the action to complete
-    waitForGoal(client);
+    % Try both
+    goal.Trajectory.Header.Stamp = rostime('Now', 'system') + rosduration(bufferSeconds);
+    % goal.Trajectory.Header.Stamp = jointStateSubscriber.LatestMessage.Header.Stamp + rosduration(bufferSeconds);
+        
+    % Send the goal to the robot Wait for the action to complete
+    sendGoalAndWait(client, goal);
 end
 
 % Cleanup ROS nodes
-rosshutdown();
+% rosshutdown();
