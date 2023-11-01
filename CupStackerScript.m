@@ -51,8 +51,8 @@ disp('Robots Initialised');
 % translationVector1 = [-0.3, 0, 0.5];
 % translationVector2 = [0.3, 0, 0.5];
 
-translationVector1 = [-0.3, -0.84, 0.5];
-translationVector2 = [0.3, -0.84, 0.5];
+translationVector1 = [-0.3, -0.6, 0.5];
+translationVector2 = [0.3, -0.6, 0.5];
 
 % Specify the rotation angle in radians
 angle = pi;
@@ -109,8 +109,8 @@ surf([-4.3, -4.3; 4.3, 4.3] ...
     , 'CData', imread(fullfile(folderName, 'woodenFloor.jpg')), 'FaceColor', 'texturemap');
 
 % Place objects in environment
-PlaceObject(fullfile(folderName, 'rubbishBin2.ply'), [-0.08, -0.05, tableHeight]);
-PlaceObject(fullfile(folderName, 'rubbishBin2.ply'), [-0.08, 0.07, tableHeight]);
+PlaceObject(fullfile(folderName, 'rubbishBin2.ply'), [-0.4, -1, tableHeight]);
+PlaceObject(fullfile(folderName, 'rubbishBin2.ply'), [0.2, -1, tableHeight]);
 PlaceObject(fullfile(folderName, 'brownTable.ply'), [0, 0, 0]);
 PlaceObject(fullfile(folderName, 'warningSign.ply'), [1.2, -1.5, 0]);
 % PlaceObject(fullfile(folderName, 'assembledFence.ply'), [0.25, 0.7, -0.97]);
