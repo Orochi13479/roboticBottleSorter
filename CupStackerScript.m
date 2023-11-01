@@ -238,8 +238,8 @@ qCloseGripper = [0, 0.05];
 closeTraj = jtraj(qOpenGripper, qCloseGripper, steps/4);
 openTraj = jtraj(qCloseGripper, qOpenGripper, steps/4);
 
-UR3eqOpenGripper = [0, 0.03, 0];
-UR3eqCloseGripper = [0, 0.05, 0];
+UR3eqOpenGripper = [0, 0, 0];
+UR3eqCloseGripper = deg2rad([30, 22.5, -52.5]);
 UR3ecloseTraj = jtraj(UR3eqOpenGripper, UR3eqCloseGripper, steps/4);
 UR3eopenTraj = jtraj(UR3eqCloseGripper, UR3eqOpenGripper, steps/4);
 

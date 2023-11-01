@@ -13,8 +13,9 @@ classdef WidowX250Gripper < RobotBaseClass
             self.CreateModel();
             if nargin < 1
                 baseTr = eye(4);
-            end
+            end 
             self.model.base = self.model.base.T * baseTr;
+            
 
             self.PlotAndColourRobot();
         end

@@ -2,7 +2,7 @@ close all;
 clear all;
 clc;
 
-r = WidowX250;
+r = UR3eGripper;
 rModel = r.model;
 rModel.teach;
 
