@@ -28,7 +28,7 @@ classdef CupStacker
             % Initialise and Plot objects
             self.environment
             self.cupPlacement
-            self.operate
+            % self.operate
 
             % Robot Initialisations
             % Initialise and Plot the UR3e object
@@ -246,17 +246,12 @@ classdef CupStacker
             disp('Setup is complete');
 
         end
-        %%
+        %% Operation Function
         function operate(self)
             steps = 200;
             cupHeight = 0.1;
             tableHeight = 0.5;
-            % WidowX250.teach()
-            % UR3e.teach()
-            % WidowX250GripperL.teach()
-            % WidowX250GripperR.teach()
 
-            % TEMPORARY FOR DEMO VIDEO
             % Calculate the desired end effector position and orientation
             desiredPositionPickupX250 = [0, -0.1, tableHeight + cupHeight];
             desiredPositionPickupUR3 = [0.1, 0.2, tableHeight + (3 * 0.03)];
@@ -272,11 +267,11 @@ classdef CupStacker
             optimalEndEffectorDropoffUR3 = rt2tr(desiredOrientation, desiredPositionDropoffUR3);
 
             % Calculate the inverse kinematics solution for the desired end effector pose
-            qCommonPickupX250 = WidowX250.ikcon(optimalEndEffectorPickupX250);
-            qCommonPickupUR3 = UR3e.ikcon(optimalEndEffectorPickupUR3);
+            qCommonPickupX250 = X250.ikcon(optimalEndEffectorPickupX250);
+            qCommonPickupUR3 = UR3.ikcon(optimalEndEffectorPickupUR3);
 
-            qCommonDropoffX250 = WidowX250.ikcon(optimalEndEffectorDropoffX250);
-            qCommonDropoffUR3 = UR3e.ikcon(optimalEndEffectorDropoffUR3);
+            qCommonDropoffX250 = X250.ikcon(optimalEndEffectorDropoffX250);
+            qCommonDropoffUR3 = UR3.ikcon(optimalEndEffectorDropoffUR3);
 
             % Gripper Trajectory Constant with all Uses
             qOpenGripper = [0, 0.03];
@@ -293,49 +288,49 @@ classdef CupStacker
                 disp("Running...")
                 if i == 1
                     % Initial Starting Position
-                    qStartX250 = zeros(1, WidowX250.n);
-                    qStartUR3 = zeros(1, UR3e.n);
+                    qStartX250 = zeros(1, X250.n);
+                    qStartUR3 = zeros(1, UR3.n);
                 else
-                    qStartX250 = WidowX250.ikcon(self.finalCupTrX250(:, :, i-1), qCommonDropoffX250);
-                    qStartUR3 = UR3e.ikcon(self.finalCupTrUR3(:, :, i-1), qCommonDropoffUR3);
+                    qStartX250 = X250.ikcon(self.finalCupTrX250(:, :, i-1), qCommonDropoffX250);
+                    qStartUR3 = UR3.ikcon(self.finalCupTrUR3(:, :, i-1), qCommonDropoffUR3);
                 end
-                qInitialX250 = WidowX250.ikcon(self.initCupTrX250(:, :, i), qCommonPickupX250);
-                qFinalX250 = WidowX250.ikcon(self.finalCupTrX250(:, :, i), qCommonDropoffX250);
+                qInitialX250 = X250.ikcon(self.initCupTrX250(:, :, i), qCommonPickupX250);
+                qFinalX250 = X250.ikcon(self.finalCupTrX250(:, :, i), qCommonDropoffX250);
                 % pickupTrajX250 = jtraj(qStartX250, qInitialX250, steps);
                 % dropoffTrajX250 = jtraj(qInitialX250, qFinalX250, steps);
 
-                qInitialUR3 = UR3e.ikcon(self.initCupTrUR3(:, :, i), qCommonPickupUR3);
-                qFinalUR3 = UR3e.ikcon(self.finalCupTrUR3(:, :, i), qCommonDropoffUR3);
+                qInitialUR3 = UR3.ikcon(self.initCupTrUR3(:, :, i), qCommonPickupUR3);
+                qFinalUR3 = UR3.ikcon(self.finalCupTrUR3(:, :, i), qCommonDropoffUR3);
                 % pickupTrajUR3 = jtraj(qStartUR3, qInitialUR3, steps);
                 % dropoffTrajUR3 = jtraj(qInitialUR3, qFinalUR3, steps);
 
 
                 % RMRC ATTEMPT
-                trStartX250 = WidowX250.fkine(qStartX250).T;
-                trInitialX250 = WidowX250.fkine(qInitialX250).T;
-                trFinalX250 = WidowX250.fkine(qFinalX250).T;
+                trStartX250 = X250.fkine(qStartX250).T;
+                trInitialX250 = X250.fkine(qInitialX250).T;
+                trFinalX250 = X250.fkine(qFinalX250).T;
 
-                trStartUR3 = UR3e.fkine(qStartUR3).T;
-                trInitialUR3 = UR3e.fkine(qInitialUR3).T;
-                trFinalUR3 = UR3e.fkine(qFinalUR3).T;
+                trStartUR3 = UR3.fkine(qStartUR3).T;
+                trInitialUR3 = UR3.fkine(qInitialUR3).T;
+                trFinalUR3 = UR3.fkine(qFinalUR3).T;
 
-                pickupTrajX250 = RMRC(WidowX250, trStartX250, trInitialX250);
-                dropoffTrajX250 = RMRC(WidowX250, trInitialX250, trFinalX250);
+                pickupTrajX250 = RMRC(X250, trStartX250, trInitialX250);
+                dropoffTrajX250 = RMRC(X250, trInitialX250, trFinalX250);
 
-                pickupTrajUR3 = RMRC(UR3e, trInitialUR3, trFinalUR3);
-                dropoffTrajUR3 = RMRC(UR3e, trFinalUR3, trFinalUR3);
+                pickupTrajUR3 = RMRC(UR3, trInitialUR3, trFinalUR3);
+                dropoffTrajUR3 = RMRC(UR3, trFinalUR3, trFinalUR3);
 
 
                 for j = 1:steps
-                    WidowX250.animate(pickupTrajX250(j, :));
-                    UR3e.animate(pickupTrajUR3(j, :));
-                    WidowX250GripperL.base = WidowX250.fkine(WidowX250.getpos()).T * trotx(-pi/2) * troty(pi) * transl(0, 0.023, 0);
+                    X250.animate(pickupTrajX250(j, :));
+                    UR3.animate(pickupTrajUR3(j, :));
+                    WidowX250GripperL.base = X250.fkine(X250.getpos()).T * trotx(-pi/2) * troty(pi) * transl(0, 0.023, 0);
                     WidowX250GripperL.animate(WidowX250GripperL.getpos());
-                    WidowX250GripperR.base = WidowX250.fkine(WidowX250.getpos()).T * trotx(-pi/2) * transl(0, 0.023, 0);
+                    WidowX250GripperR.base = X250.fkine(X250.getpos()).T * trotx(-pi/2) * transl(0, 0.023, 0);
                     WidowX250GripperR.animate(WidowX250GripperR.getpos());
-                    UR3eGripperL.base = UR3e.fkine(UR3e.getpos()).T * trotx(pi/2);
+                    UR3eGripperL.base = UR3.fkine(UR3.getpos()).T * trotx(pi/2);
                     UR3eGripperL.animate(UR3eGripperL.getpos());
-                    UR3eGripperR.base = UR3e.fkine(UR3e.getpos()).T * trotz(pi) * trotx(pi/2);
+                    UR3eGripperR.base = UR3.fkine(UR3.getpos()).T * trotz(pi) * trotx(pi/2);
                     UR3eGripperR.animate(UR3eGripperR.getpos());
                     drawnow();
                 end
@@ -349,15 +344,15 @@ classdef CupStacker
                 end
 
                 for j = 1:steps
-                    WidowX250.animate(dropoffTrajX250(j, :));
-                    UR3e.animate(dropoffTrajUR3(j, :));
-                    WidowX250GripperL.base = WidowX250.fkine(WidowX250.getpos()).T * trotx(-pi/2) * troty(pi) * transl(0, 0.023, 0);
+                    X250.animate(dropoffTrajX250(j, :));
+                    UR3.animate(dropoffTrajUR3(j, :));
+                    WidowX250GripperL.base = X250.fkine(X250.getpos()).T * trotx(-pi/2) * troty(pi) * transl(0, 0.023, 0);
                     WidowX250GripperL.animate(WidowX250GripperL.getpos());
-                    WidowX250GripperR.base = WidowX250.fkine(WidowX250.getpos()).T * trotx(-pi/2) * transl(0, 0.023, 0);
+                    WidowX250GripperR.base = X250.fkine(X250.getpos()).T * trotx(-pi/2) * transl(0, 0.023, 0);
                     WidowX250GripperR.animate(WidowX250GripperR.getpos());
-                    UR3eGripperL.base = UR3e.fkine(UR3e.getpos()).T * trotx(pi/2);
+                    UR3eGripperL.base = UR3.fkine(UR3.getpos()).T * trotx(pi/2);
                     UR3eGripperL.animate(UR3eGripperL.getpos());
-                    UR3eGripperR.base = UR3e.fkine(UR3e.getpos()).T * trotz(pi) * trotx(pi/2);
+                    UR3eGripperR.base = UR3.fkine(UR3.getpos()).T * trotz(pi) * trotx(pi/2);
                     UR3eGripperR.animate(UR3eGripperR.getpos());
                     drawnow();
                 end
