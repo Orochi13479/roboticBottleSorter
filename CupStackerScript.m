@@ -81,8 +81,6 @@ WidowX250GripperR.animate([0, 0.03]);
 UR3eGripperL.animate([0, 0, 0]);
 UR3eGripperR.animate([0, 0, 0]);
 
-% qMatrix = [];
-
 q1 = [-pi / 4, 0, 0];
 q2 = [pi / 4, 0, 0];
 steps = 2;
@@ -248,7 +246,6 @@ UR3eopenTraj = jtraj(UR3eqCloseGripper, UR3eqOpenGripper, steps/4);
 
 for i = 1:(length(finalCupArrayUR3))
     disp("Running...")
-    % CollisionCheck(WidowX250, self.cupVertices);
     if i == 1
         % Initial Starting Position
         qStartX250 = zeros(1, WidowX250.n);
