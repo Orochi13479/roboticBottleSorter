@@ -1,12 +1,12 @@
-function [qMatrix] = collisionFreeTraj(robot, q1, q2)
+function [qMatrix] = collisionFreeTraj(robot, q1, q2, vertex, faces)
     
-    centerpnt = [1.1, 0, 0];
-    side = 1.5;
-    plotOptions.plotFaces = true;
-    [vertex, faces, faceNormals] = RectangularPrism(centerpnt-side/2, centerpnt+side/2, plotOptions);
-    
-    axis equal
-    camlight
+    faceNormals = zeros(size(faces,1),3);
+    for faceIndex = 1:size(faces,1)
+        v1 = vertex(faces(faceIndex,1)',:);
+        v2 = vertex(faces(faceIndex,2)',:);
+        v3 = vertex(faces(faceIndex,3)',:);
+        faceNormals(faceIndex,:) = unit(cross(v2-v1,v3-v1));
+    end
     
     disp("RRT Collision detection")
     
@@ -14,7 +14,7 @@ function [qMatrix] = collisionFreeTraj(robot, q1, q2)
     isCollision = true;
     checkedTillWaypoint = 1;
     qMatrix = [];
-    qLengthOpt = 100; % Upper limit on the acceptable length of RRT Traj, Basically a minimum cost function, Increase if it is taking too long to find a traj
+    qLengthOpt = 150; % Upper limit on the acceptable length of RRT Traj, Basically a minimum cost function, Increase if it is taking too long to find a traj
     tic
     while (isCollision)
         startWaypoint = checkedTillWaypoint;
