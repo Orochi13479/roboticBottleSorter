@@ -165,8 +165,10 @@ for i = 1:length(initCupArrayUR3)
 end
 
 
-% Get Cup vertices from ply file
+% Get Cup and Can vertices from ply file
 [tri, self.cupVertices] = plyread(fullfile(folderName, 'plasticCup.ply'), 'tri');
+[tri, self.canVertices] = plyread(fullfile(folderName, 'sodaCan.ply'), 'tri');
+
 
 % Hardcode Final Cup Locations
 bin1x = 0.3;
