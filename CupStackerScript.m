@@ -209,7 +209,7 @@ steps = 200;
 % UR3e.teach()
 % WidowX250GripperL.teach()
 % WidowX250GripperR.teach()
-input("Press Enter to See Beauty")
+% input("Press Enter to See Beauty")
 
 % TEMPORARY FOR DEMO VIDEO
 % Calculate the desired end effector position and orientation

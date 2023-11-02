@@ -12,8 +12,8 @@ a.configurePin(buttonPin, 'Pullup');
 buttonState = 1;
 isBlinking = true;
 
-while isBlinking
-    buttonState = a.readDigitalPin(buttonPin);
+% while isBlinking
+%     buttonState = a.readDigitalPin(buttonPin);
     if buttonState == 0
         isBlinking = ~isBlinking; % Toggle the blinking state
     end
@@ -33,6 +33,6 @@ while isBlinking
             end
         end
     end
-end
+% end
 
 % https://www.youtube.com/watch?v=wLrVQpzva6s&ab_channel=MATLAB
