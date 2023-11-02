@@ -118,6 +118,12 @@ PlaceObject(fullfile(folderName, 'wheelieBin.ply'), [1.2, 2, 0]);
 PlaceObject(fullfile(folderName, 'cabinet.ply'), [0, 2, 0]);
 PlaceObject(fullfile(folderName, 'cabinet.ply'), [-1, 2, 0]);
 
+% Light Curtain Placements
+PlaceObject(fullfile(folderName, 'lightCurtain.ply'), [1.2, -1.5, 0.85]);
+PlaceObject(fullfile(folderName, 'lightCurtain.ply'), [1.2, 1, 0.85]);
+PlaceObject(fullfile(folderName, 'lightCurtain.ply'), [-1.2, -1.5, 0.85]);
+PlaceObject(fullfile(folderName, 'lightCurtain.ply'), [-1.2, 1, 0.85]);
+
 % PlaceObject('emergencyStopButton.ply', [0.96, 0.6, TableDimensions(3)]);
 
 %% Place Movable objects
@@ -171,7 +177,7 @@ end
 % Hardcode Final Cup Locations
 bin1x = 0.3;
 bin2x = -0.3;
-biny = -0.7;
+biny = -1.4;
 
 finalCupArrayUR3 = [; ...
     bin1x, biny, tableHeight; ...

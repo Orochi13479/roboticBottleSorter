@@ -10,19 +10,22 @@ classdef Workspace
     %% Class methods
     methods
         function self = Workspace()
+            clc;
+            clf;
             hold on
             self.EnvironmentSpawn;
+
             % self.InitialiseRobots
 
             self.UR3e = UR3e;
-            UR3e = self.UR3e.model;
+            UR3 = self.UR3e.model;
 
             self.WidowX250 = WidowX250;
             WidowX250 = self.WidowX250.model;
 
             view(30,20)
             axis equal
-           
+
             % Initialise and Plot the WidowX250 Gripper object
             X250GripperL = WidowX250Gripper;
             WidowX250GripperL = X250GripperL.model;
@@ -133,15 +136,15 @@ classdef Workspace
 
         %% Robot Initialisations
         % function InitialiseRobots()
-        % 
+        %
         %     % Initialise and Plot the UR3e object
         %     UR3eRobot = UR3e;
         %     UR3e = UR3eRobot.model;
-        % 
+        %
         %     % Initialise and Plot the WidowX250 object
         %     X250Robot = WidowX250;
         %     WidowX250 = X250Robot.model;
-        % 
+        %
         % end
         %% Running operation
 
