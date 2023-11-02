@@ -7,20 +7,24 @@ centerpnt = [1.1, 0, 0];
 side = 1.5;
 plotOptions.plotFaces = true;
 folderName = 'data';
-[cup, TRI,PTS,DATA] = PlaceObject(fullfile(folderName, 'brownTable.ply'),[0.25,0,0])
+[cup, TRI,PTS,DATA] = PlaceObject(fullfile(folderName, 'brownTable.ply'),[0,0,0])
 % [TRI,PTS,DATA,~] = plyread(fullfile(folderName, 'plasticCup.ply'), 'tri');
 vertex = PTS;
 faces = TRI;
 % faces3 = DATA.face.vertex_indices;
 % faceNormals = [DATA.vertex.nx,DATA.vertex.ny,DATA.vertex.nz];
-for i=1:length(vertex)
-    faceNormal(i) = cross((vertex(1,:)-vertex(2,:)),(vertex(2,i)-vertex(3,:)));
-    faceNormals = faceNormal(i) / norm(faceNormal(i));
+faceNormals = zeros(size(faces,1),3);
+for faceIndex = 1:size(faces,1)
+    v1 = vertex(faces(faceIndex,1)',:);
+    v2 = vertex(faces(faceIndex,2)',:);
+    v3 = vertex(faces(faceIndex,3)',:);
+    faceNormals(faceIndex,:) = unit(cross(v2-v1,v3-v1));
 end
+
 X250Robot = WidowX250;
 robot = X250Robot.model();
 [armRotationMatrix1, armTranslationVector1] = tr2rt(robot.base);
-translationVector1 = [-0.3, -0.6, 0.5];
+translationVector1 = [0.6, -0.6, 0];
 robot.base = rt2tr(armRotationMatrix1, translationVector1);
 
 hold on
@@ -31,8 +35,8 @@ xlim([-2, 2]); % xlim([-4.2, 4.2]); <-- SHOULD PROBS MAKE SMALLER
 ylim([-2, 2]); % ylim([-2.5, 2.5]); <-- SHOULD PROBS MAKE SMALLER
 robot.delay = 0;
 disp("RRT Collision detection")
-q1 = [-pi / 4, 0, 0, 0, 0, 0];
-q2 = [pi / 4, 0, 0, 0, 0, 0];
+q1 = deg2rad([50, 0, 0, 0, 0, 0]);
+q2 = deg2rad([-40, 0, 0, 0, 0, 0]);
 robot.animate(q1);
 qWaypoints = [q1; q2];
 isCollision = true;
@@ -56,6 +60,7 @@ while (isCollision)
                 qMatrix = [qMatrix; qMatrixJoin];
                 % Reached goal without collision, so break out
                 disp("Found Collision Free Traj")
+                length(qMatrix)
                 break;
             end
         else
@@ -69,7 +74,7 @@ while (isCollision)
             break;
         end
     end
-
+    % length(qMatrix)
     if length(qMatrix) > qLengthOpt
         disp("Traj too Long Trying again")
         % Reset Variables to rerun RRT
@@ -84,7 +89,8 @@ disp("RRT Took: "+num2str(toc));
 disp("qMatrix Length: "+num2str(length(qMatrix)));
 pause(5)
 robot.animate(qMatrix)
-drawnow();
+% robot.teach()
+
 %% IsIntersectionPointInsideTriangle
 % Given a point which is known to be on the same plane as the triangle
 % determine if the point is
