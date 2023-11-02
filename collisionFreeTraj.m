@@ -29,7 +29,7 @@ while (isCollision)
             if ~IsCollision(robot, qMatrixJoin, faces, vertex, faceNormals)
                 qMatrix = [qMatrix; qMatrixJoin];
                 % Reached goal without collision, so break out
-                disp("Found Collision Free Traj")
+                % disp("Found Collision Free Traj")
                 break;
             end
         else

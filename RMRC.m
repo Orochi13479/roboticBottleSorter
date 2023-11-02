@@ -1,10 +1,14 @@
 %% FROM Lab9Solution_Question1.m Modified
 
-function [qMatrix] = RMRC(robot, startTr, endTr, time, deltaT)
+function [qMatrix] = RMRC(robot, startTr, endTr)
+
+time = 10; % Total time (s)
+deltaT = 0.05; % Control frequency
 
 steps = time / deltaT; % No. of steps for simulation
 epsilon = 0.1; % Threshold value for manipulability/Damped Least Squares
-W = diag([1, 1, 1, 0.1, 0.1, 0.1]); % Weighting matrix for the velocity vector
+W = diag([1, 1, 1, 0.5, 0.5, 0.5]); % Weighting matrix for the velocity vector
+
 
 % Allocate array data
 m = zeros(steps, 1); % Array for Measure of Manipulability
@@ -43,7 +47,7 @@ for i = 1:steps - 1
         lambda = 0;
     end
 
-    invJ = (J'*J+lambda*eye(robot.n))\(J'); % Pseudo Inverse of the Jacobian DLS
+    invJ = (J' * J + lambda * eye(robot.n)) \ (J'); % Pseudo Inverse of the Jacobian DLS
     qdot(i, :) = (invJ * xdot)'; % Inverse kinematics of velocities (RMRC equation)                                           % Solve the RMRC equation (you may need to transpose the vector)
 
     for j = 1:robot.n % Loop through joints 1 to 6
@@ -55,7 +59,7 @@ for i = 1:steps - 1
     end
 
     qMatrix(i+1, :) = qMatrix(i, :) + deltaT * qdot(i, :); % Update next joint state based on joint velocities
-    
+
     % updatedQ = qMatrix(i+1, :);
     % robot.animate(updatedQ)
     % drawnow();
