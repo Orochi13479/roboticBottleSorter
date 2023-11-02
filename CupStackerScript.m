@@ -213,11 +213,8 @@ disp('Setup is complete');
 %% Begin operation
 % SMOOTH SYNCRONOUS MOVEMENT OF BOTH ROBOTS ACHIEVED
 steps = 200;
-% WidowX250.teach()
-% UR3e.teach()
-% WidowX250GripperL.teach()
-% WidowX250GripperR.teach()
-input("Press Enter to See Demo")
+
+% input("Press Enter to See Demo")
 
 % TEMPORARY FOR DEMO VIDEO
 % Calculate the desired end effector position and orientation

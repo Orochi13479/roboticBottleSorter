@@ -246,16 +246,32 @@ UR3eqCloseGripper = deg2rad([30, 22.5, -52.5]);
 UR3ecloseTraj = jtraj(UR3eqOpenGripper, UR3eqCloseGripper, steps/4);
 UR3eopenTraj = jtraj(UR3eqCloseGripper, UR3eqOpenGripper, steps/4);
 
-% PlaceObject(fullfile(folderName, 'lightCurtain.ply'), [1.2, -1.5, 0.85]);
-% PlaceObject(fullfile(folderName, 'lightCurtain.ply'), [1.2, 1, 0.85]);
-% PlaceObject(fullfile(folderName, 'lightCurtain.ply'), [-1.2, -1.5, 0.85]);
-% PlaceObject(fullfile(folderName, 'lightCurtain.ply'), [-1.2, 1, 0.85]);
+% Define the coordinates of the four poles
+poleCoordinates = [
+    1.2, -1.5, 0.85;
+    1.2, 1, 0.85;
+    -1.2, -1.5, 0.85;
+    -1.2, 1, 0.85
+];
 
- [x,z] = meshgrid(1.2:0.01:-1.2, 0:0.01:1.5); %setting location of meshgrid for light Curtains
+% Set the height (Z-coordinate) for the horizontal plane
+constantHeight = 0.85;
 
- y(1:size(x,1),1:1) = 0.2;
+% Create four mesh grids (X, Y, and Z) for each pole
+[X1, Y1] = meshgrid(poleCoordinates(1, 1), poleCoordinates(1, 2));
+Z1 = constantHeight * ones(size(X1));
 
- lightCurtainS2 = surf(x,y,z,'FaceAlpha',0.1,'EdgeColor','r');
+[X2, Y2] = meshgrid(poleCoordinates(2, 1), poleCoordinates(2, 2));
+Z2 = constantHeight * ones(size(X2));
+
+[X3, Y3] = meshgrid(poleCoordinates(3, 1), poleCoordinates(3, 2));
+Z3 = constantHeight * ones(size(X3));
+
+[X4, Y4] = meshgrid(poleCoordinates(4, 1), poleCoordinates(4, 2));
+Z4 = constantHeight * ones(size(X4));
+
+
+lightCurtainS2 = surf(X1,Y1,Z1,'FaceAlpha',0.5,'EdgeColor','r');
     
     
     % for i = 1:(length(finalCupArrayUR3))

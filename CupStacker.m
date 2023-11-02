@@ -143,6 +143,12 @@ classdef CupStacker
             PlaceObject(fullfile(folderName, 'cabinet.ply'), [0, 2, 0]);
             PlaceObject(fullfile(folderName, 'cabinet.ply'), [-1, 2, 0]);
 
+            % Light Curtain Placements
+            PlaceObject(fullfile(folderName, 'lightCurtain.ply'), [1.2, -1.5, 0.85]);
+            PlaceObject(fullfile(folderName, 'lightCurtain.ply'), [1.2, 1, 0.85]);
+            PlaceObject(fullfile(folderName, 'lightCurtain.ply'), [-1.2, -1.5, 0.85]);
+            PlaceObject(fullfile(folderName, 'lightCurtain.ply'), [-1.2, 1, 0.85]);
+
         end
 
         function operate(self)
