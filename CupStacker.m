@@ -6,6 +6,14 @@ classdef CupStacker
         WidowX250
         X250GripperL
         X250GripperR
+        cupX250
+        cupUR3
+        initCupTrX250
+        initCupTrUR3
+        cupVertices
+        canVertices
+        finalCupTrUR3
+        finalCupTrX250
     end
 
     methods
@@ -19,6 +27,8 @@ classdef CupStacker
             % Environment Initialisations
             % Initialise and Plot objects
             self.environment
+            self.cupPlacement
+            self.operate
 
             % Robot Initialisations
             % Initialise and Plot the UR3e object
@@ -111,7 +121,7 @@ classdef CupStacker
             % operate(self);
         end
 
-
+        %%
         function environment(self)
             zlim([0, 2]);
             xlim([-2, 2]); % xlim([-4.2, 4.2]); <-- SHOULD PROBS MAKE SMALLER
@@ -144,11 +154,218 @@ classdef CupStacker
             PlaceObject(fullfile(folderName, 'cabinet.ply'), [-1, 2, 0]);
 
         end
+        %%
+        function cupPlacement(self)
+            cupHeight = 0.1;
+            tableHeight = 0.5;
+            folderName = 'data';
 
+            % 14 Cups to Start with
+            % X250 has 7 Cups
+
+            initCupArrayX250 = [; ...
+                -0.1, -0.25, tableHeight; ...
+                -0.3, -0.3, tableHeight; ...
+                -0.45, -0.3, tableHeight; ...
+                -0.45, -0.3, tableHeight + cupHeight; ...
+                -0.55, -0.4, tableHeight; ...
+                -0.6, -0.5, tableHeight; ...
+                -0.6, -0.5, tableHeight + cupHeight; ...
+                ];
+
+            for i = 1:length(initCupArrayX250)
+                % Place the Cup using PlaceObject
+                self.cupX250(i) = PlaceObject(fullfile(folderName, 'sodaCan.ply'), [initCupArrayX250(i, 1), initCupArrayX250(i, 2), initCupArrayX250(i, 3)]);
+                % Convert Coords to Transforms
+                self.initCupTrX250(:, :, i) = transl(initCupArrayX250(i, 1), initCupArrayX250(i, 2), initCupArrayX250(i, 3)+cupHeight) * troty(pi);
+            end
+
+            % UR3e has 7 Cups
+            initCupArrayUR3 = [; ...
+                0, -0.4, tableHeight; ...
+                0.1, -0.25, tableHeight; ...
+                0.2, -0.3, tableHeight; ...
+                0.3, -0.2, tableHeight; ...
+                0.5, -0.5, tableHeight; ...
+                0.5, -0.3, tableHeight; ...
+                0.6, -0.5, tableHeight; ...
+                ];
+
+            for i = 1:length(initCupArrayUR3)
+                % Place the Cup using PlaceObject
+                self.cupUR3(i) = PlaceObject(fullfile(folderName, 'plasticCup.ply'), [initCupArrayUR3(i, 1), initCupArrayUR3(i, 2), initCupArrayUR3(i, 3)]);
+                % Convert Coords to Transforms
+                self.initCupTrUR3(:, :, i) = transl(initCupArrayUR3(i, 1), initCupArrayUR3(i, 2), initCupArrayUR3(i, 3)+cupHeight) * troty(pi);
+            end
+
+
+            % Get Cup and Can vertices from ply file
+            [tri, self.cupVertices] = plyread(fullfile(folderName, 'plasticCup.ply'), 'tri');
+            [tri, self.canVertices] = plyread(fullfile(folderName, 'sodaCan.ply'), 'tri');
+
+            % Hardcode Final Cup Locations
+            bin1x = 0.3;
+            bin2x = -0.3;
+            biny = -1.0;
+
+            finalCupArrayUR3 = [; ...
+                bin1x, biny, tableHeight; ...
+                bin1x, biny, tableHeight + cupHeight; ...
+                bin1x, biny, tableHeight + cupHeight; ...
+                bin1x, biny, tableHeight + cupHeight; ...
+                bin1x, biny, tableHeight + cupHeight; ...
+                bin1x, biny, tableHeight + cupHeight; ...
+                bin1x, biny, tableHeight + cupHeight; ...
+                ];
+
+            finalCupArrayX250 = [; ...
+                bin2x, biny, tableHeight; ...
+                bin2x, biny, tableHeight + cupHeight; ...
+                bin2x, biny, tableHeight + cupHeight; ...
+                bin2x, biny, tableHeight + cupHeight; ...
+                bin2x, biny, tableHeight + cupHeight; ...
+                bin2x, biny, tableHeight + cupHeight; ...
+                bin2x, biny, tableHeight + cupHeight; ...
+                ];
+
+            % Convert Final Coords to Transforms
+            for i = 1:length(finalCupArrayUR3)
+                self.finalCupTrUR3(:, :, i) = transl(finalCupArrayUR3(i, 1), finalCupArrayUR3(i, 2), finalCupArrayUR3(i, 3)+cupHeight) * trotx(pi) * trotz(pi/2);
+                self.finalCupTrX250(:, :, i) = transl(finalCupArrayX250(i, 1), finalCupArrayX250(i, 2), finalCupArrayX250(i, 3)+cupHeight) * trotx(pi) * trotz(pi/2);
+            end
+
+            pause(1); % Let environment Spawn in
+
+            disp('Plastic Cups Created');
+            disp('Setup is complete');
+
+        end
+        %%
         function operate(self)
-            % Begin operation
-            UR3.TestMoveJoints;
-            X250.TestMoveJoints;
+            steps = 200;
+            cupHeight = 0.1;
+            tableHeight = 0.5;
+            % WidowX250.teach()
+            % UR3e.teach()
+            % WidowX250GripperL.teach()
+            % WidowX250GripperR.teach()
+
+            % TEMPORARY FOR DEMO VIDEO
+            % Calculate the desired end effector position and orientation
+            desiredPositionPickupX250 = [0, -0.1, tableHeight + cupHeight];
+            desiredPositionPickupUR3 = [0.1, 0.2, tableHeight + (3 * 0.03)];
+            desiredPositionDropoffX250 = [0, -0.1, tableHeight + (3 * 0.03)];
+            desiredPositionDropoffUR3 = [0, 0, tableHeight + (3 * 0.03)];
+            desiredOrientation = rotx(pi);
+
+            % Combine the desired position and orientation to form the transformation matrix
+            optimalEndEffectorPickupX250 = rt2tr(desiredOrientation, desiredPositionPickupX250);
+            optimalEndEffectorPickupUR3 = rt2tr(desiredOrientation, desiredPositionPickupUR3);
+
+            optimalEndEffectorDropoffX250 = rt2tr(desiredOrientation, desiredPositionDropoffX250);
+            optimalEndEffectorDropoffUR3 = rt2tr(desiredOrientation, desiredPositionDropoffUR3);
+
+            % Calculate the inverse kinematics solution for the desired end effector pose
+            qCommonPickupX250 = WidowX250.ikcon(optimalEndEffectorPickupX250);
+            qCommonPickupUR3 = UR3e.ikcon(optimalEndEffectorPickupUR3);
+
+            qCommonDropoffX250 = WidowX250.ikcon(optimalEndEffectorDropoffX250);
+            qCommonDropoffUR3 = UR3e.ikcon(optimalEndEffectorDropoffUR3);
+
+            % Gripper Trajectory Constant with all Uses
+            qOpenGripper = [0, 0.03];
+            qCloseGripper = [0, 0.05];
+            closeTraj = jtraj(qOpenGripper, qCloseGripper, steps/4);
+            openTraj = jtraj(qCloseGripper, qOpenGripper, steps/4);
+
+            UR3eqOpenGripper = [0, 0, 0];
+            UR3eqCloseGripper = deg2rad([30, 22.5, -52.5]);
+            UR3ecloseTraj = jtraj(UR3eqOpenGripper, UR3eqCloseGripper, steps/4);
+            UR3eopenTraj = jtraj(UR3eqCloseGripper, UR3eqOpenGripper, steps/4);
+
+            for i = 1:(length(finalCupArrayUR3))
+                disp("Running...")
+                if i == 1
+                    % Initial Starting Position
+                    qStartX250 = zeros(1, WidowX250.n);
+                    qStartUR3 = zeros(1, UR3e.n);
+                else
+                    qStartX250 = WidowX250.ikcon(self.finalCupTrX250(:, :, i-1), qCommonDropoffX250);
+                    qStartUR3 = UR3e.ikcon(self.finalCupTrUR3(:, :, i-1), qCommonDropoffUR3);
+                end
+                qInitialX250 = WidowX250.ikcon(self.initCupTrX250(:, :, i), qCommonPickupX250);
+                qFinalX250 = WidowX250.ikcon(self.finalCupTrX250(:, :, i), qCommonDropoffX250);
+                % pickupTrajX250 = jtraj(qStartX250, qInitialX250, steps);
+                % dropoffTrajX250 = jtraj(qInitialX250, qFinalX250, steps);
+
+                qInitialUR3 = UR3e.ikcon(self.initCupTrUR3(:, :, i), qCommonPickupUR3);
+                qFinalUR3 = UR3e.ikcon(self.finalCupTrUR3(:, :, i), qCommonDropoffUR3);
+                % pickupTrajUR3 = jtraj(qStartUR3, qInitialUR3, steps);
+                % dropoffTrajUR3 = jtraj(qInitialUR3, qFinalUR3, steps);
+
+
+                % RMRC ATTEMPT
+                trStartX250 = WidowX250.fkine(qStartX250).T;
+                trInitialX250 = WidowX250.fkine(qInitialX250).T;
+                trFinalX250 = WidowX250.fkine(qFinalX250).T;
+
+                trStartUR3 = UR3e.fkine(qStartUR3).T;
+                trInitialUR3 = UR3e.fkine(qInitialUR3).T;
+                trFinalUR3 = UR3e.fkine(qFinalUR3).T;
+
+                pickupTrajX250 = RMRC(WidowX250, trStartX250, trInitialX250);
+                dropoffTrajX250 = RMRC(WidowX250, trInitialX250, trFinalX250);
+
+                pickupTrajUR3 = RMRC(UR3e, trInitialUR3, trFinalUR3);
+                dropoffTrajUR3 = RMRC(UR3e, trFinalUR3, trFinalUR3);
+
+
+                for j = 1:steps
+                    WidowX250.animate(pickupTrajX250(j, :));
+                    UR3e.animate(pickupTrajUR3(j, :));
+                    WidowX250GripperL.base = WidowX250.fkine(WidowX250.getpos()).T * trotx(-pi/2) * troty(pi) * transl(0, 0.023, 0);
+                    WidowX250GripperL.animate(WidowX250GripperL.getpos());
+                    WidowX250GripperR.base = WidowX250.fkine(WidowX250.getpos()).T * trotx(-pi/2) * transl(0, 0.023, 0);
+                    WidowX250GripperR.animate(WidowX250GripperR.getpos());
+                    UR3eGripperL.base = UR3e.fkine(UR3e.getpos()).T * trotx(pi/2);
+                    UR3eGripperL.animate(UR3eGripperL.getpos());
+                    UR3eGripperR.base = UR3e.fkine(UR3e.getpos()).T * trotz(pi) * trotx(pi/2);
+                    UR3eGripperR.animate(UR3eGripperR.getpos());
+                    drawnow();
+                end
+
+                for j = 1:steps / 4
+                    WidowX250GripperL.animate(closeTraj(j, :));
+                    WidowX250GripperR.animate(closeTraj(j, :));
+                    UR3eGripperL.animate(UR3ecloseTraj(j, :));
+                    UR3eGripperR.animate(UR3ecloseTraj(j, :));
+                    drawnow();
+                end
+
+                for j = 1:steps
+                    WidowX250.animate(dropoffTrajX250(j, :));
+                    UR3e.animate(dropoffTrajUR3(j, :));
+                    WidowX250GripperL.base = WidowX250.fkine(WidowX250.getpos()).T * trotx(-pi/2) * troty(pi) * transl(0, 0.023, 0);
+                    WidowX250GripperL.animate(WidowX250GripperL.getpos());
+                    WidowX250GripperR.base = WidowX250.fkine(WidowX250.getpos()).T * trotx(-pi/2) * transl(0, 0.023, 0);
+                    WidowX250GripperR.animate(WidowX250GripperR.getpos());
+                    UR3eGripperL.base = UR3e.fkine(UR3e.getpos()).T * trotx(pi/2);
+                    UR3eGripperL.animate(UR3eGripperL.getpos());
+                    UR3eGripperR.base = UR3e.fkine(UR3e.getpos()).T * trotz(pi) * trotx(pi/2);
+                    UR3eGripperR.animate(UR3eGripperR.getpos());
+                    drawnow();
+                end
+
+                for j = 1:steps / 4
+                    WidowX250GripperL.animate(openTraj(j, :));
+                    WidowX250GripperR.animate(openTraj(j, :));
+                    UR3eGripperL.animate(UR3eopenTraj(j, :));
+                    UR3eGripperR.animate(UR3eopenTraj(j, :));
+                    drawnow();
+                end
+            end
+
+            disp("Finished")
         end
 
     end
