@@ -1,4 +1,4 @@
-close all;
+% close all;
 clear all;
 clc;
 hold on;
@@ -13,13 +13,12 @@ rModel = r.model;
 [armRotationMatrix1, armTranslationVector1] = tr2rt(rModel.base);
 translationVector1 = [0, 0, 0];
 rModel.base = rt2tr(armRotationMatrix1, translationVector1);
-
+% rModel.teach();
 t = 10; % Total time (s)
 deltaT = 0.02; % Control frequency
 
-T1 = rModel.fkine(zeros(1, rModel.n));
-T2 = transl(0.2, 0.2, 0.1) * trotx(pi) * trotz(pi/2);
-T3 = SE3(T2);
+T1 = rModel.fkine(zeros(1, rModel.n)).T
+T2 = rModel.fkine(deg2rad([90,30,0,0,60,0])).T
+qMatrix = RMRC(rModel, T1, T2, t, deltaT)
 
-RMRC(rModel, T1, T3, t, deltaT);
-
+length(qMatrix)
