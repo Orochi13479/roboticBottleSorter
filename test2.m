@@ -3,36 +3,47 @@ close all;
 clear all;
 clc;
 
-% 2.1: Make a 3DOF model
-L1 = Link('d', 0, 'a', 1, 'alpha', 0, 'qlim', [-pi, pi]);
-L2 = Link('d', 0, 'a', 1, 'alpha', 0, 'qlim', [-pi, pi]);
-L3 = Link('d', 0, 'a', 1, 'alpha', 0, 'qlim', [-pi, pi]);
-robot = SerialLink([L1, L2, L3], 'name', 'myRobot');
-q = zeros(1, 3); % Create a vector of initial joint angles
-scale = 0.5;
-workspace = [-2, 2, -2, 2, -0.05, 2]; % Set the size of the workspace when drawing the robot
-robot.plot(q, 'workspace', workspace, 'scale', scale); % Plot the robot
-
-centerpnt = [2, 0, -0.5];
+centerpnt = [1.1, 0, 0];
 side = 1.5;
 plotOptions.plotFaces = true;
-[vertex, faces, faceNormals] = RectangularPrism(centerpnt-side/2, centerpnt+side/2, plotOptions);
-axis equal
+folderName = 'data';
+[cup, TRI,PTS,DATA] = PlaceObject(fullfile(folderName, 'brownTable.ply'),[0.25,0,0])
+% [TRI,PTS,DATA,~] = plyread(fullfile(folderName, 'plasticCup.ply'), 'tri');
+vertex = PTS;
+faces = TRI;
+% faces3 = DATA.face.vertex_indices;
+% faceNormals = [DATA.vertex.nx,DATA.vertex.ny,DATA.vertex.nz];
+for i=1:length(vertex)
+    faceNormal(i) = cross((vertex(1,:)-vertex(2,:)),(vertex(2,i)-vertex(3,:)));
+    faceNormals = faceNormal(i) / norm(faceNormal(i));
+end
+X250Robot = WidowX250;
+robot = X250Robot.model();
+[armRotationMatrix1, armTranslationVector1] = tr2rt(robot.base);
+translationVector1 = [-0.3, -0.6, 0.5];
+robot.base = rt2tr(armRotationMatrix1, translationVector1);
+
+hold on
+% axis equal
 camlight
-
-
+zlim([-0.05, 2]);
+xlim([-2, 2]); % xlim([-4.2, 4.2]); <-- SHOULD PROBS MAKE SMALLER
+ylim([-2, 2]); % ylim([-2.5, 2.5]); <-- SHOULD PROBS MAKE SMALLER
+robot.delay = 0;
 disp("RRT Collision detection")
-q1 = [-pi / 4, 0, 0];
-q2 = [pi / 4, 0, 0];
+q1 = [-pi / 4, 0, 0, 0, 0, 0];
+q2 = [pi / 4, 0, 0, 0, 0, 0];
 robot.animate(q1);
 qWaypoints = [q1; q2];
 isCollision = true;
 checkedTillWaypoint = 1;
 qMatrix = [];
-qLengthOpt = 100; % Upper limit on the acceptable length of RRT Traj, Basically a minimum cost function, Increase if it is taking too long to find a traj
+qLengthOpt = 300; % Upper limit on the acceptable length of RRT Traj, Basically a minimum cost function, Increase if it is taking too long to find a traj
+disp("here")
 tic
 while (isCollision)
     startWaypoint = checkedTillWaypoint;
+    disp("Cycle")
     for i = startWaypoint:size(qWaypoints, 1) - 1
         qMatrixJoin = InterpolateWaypointRadians(qWaypoints(i:i+1, :), deg2rad(10));
         if ~IsCollision(robot, qMatrixJoin, faces, vertex, faceNormals)
@@ -49,9 +60,9 @@ while (isCollision)
             end
         else
             % Randomly pick a pose that is not in collision
-            qRand = (2 * rand(1, 3) - 1) * pi;
+            qRand = (2 * rand(1, 6) - 1) * pi;
             while IsCollision(robot, qRand, faces, vertex, faceNormals)
-                qRand = (2 * rand(1, 3) - 1) * pi;
+                qRand = (2 * rand(1, 6) - 1) * pi;
             end
             qWaypoints = [qWaypoints(1:i, :); qRand; qWaypoints(i+1:end, :)];
             isCollision = true;
@@ -71,8 +82,9 @@ while (isCollision)
 end
 disp("RRT Took: "+num2str(toc));
 disp("qMatrix Length: "+num2str(length(qMatrix)));
+pause(5)
 robot.animate(qMatrix)
-
+drawnow();
 %% IsIntersectionPointInsideTriangle
 % Given a point which is known to be on the same plane as the triangle
 % determine if the point is
