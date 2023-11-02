@@ -1,50 +1,51 @@
-%% Collision Checker and Avoidance Function
-function CollisionCheck(robot, cupVertices)
-% Creating transform for every joint
-q = robot.getpos();
-tr = zeros(4, 4, robot.n+1);
-tr(:, :, 1) = robot.base;
-L = robot.links;
-for i = 1:robot.n
-    tr(:, :, i+1) = tr(:, :, i) * trotz(q(i)+L(i).offset) * transl(0, 0, L(i).d) * transl(L(i).a, 0, 0) * trotx(L(i).alpha);
-end
+classdef CollisionCheck < handle
+    properties (Access = public)
+        centerPoints;
+        radii;
+        robot;
+    end
+    methods
+        function self = CollisionCheck(robot, centerPoints, radii)
+            self.robot = robot;
+            self.centerPoints = centerPoints;
+            self.radii = radii;
+        end
 
-for i = 1:size(tr, 3) - 1
-    for vertexIndex = 1:size(cupVertices, 1)
-        vertOnPlane = cupVertices(vertexIndex, :);
-        [intersectP, check] = LinePlaneIntersection([0, 0, 1], vertOnPlane, tr(1:3, 4, i)', tr(1:3, 4, i+1)');
-        if check == 1 && IsIntersectionPointInsideTriangle(intersectP, cupVertices)
-            plot3(intersectP(1), intersectP(2), intersectP(3), 'g*');
-            disp('Collision');
+        %% Plot ellipsoids on robot
+        function plotEllipsoids(self)
+            for i = 1:self.robot.model.n
+                [X, Y, Z] = ellipsoid(self.centerPoints(i,1), self.centerPoints(i,2), self.centerPoints(i,3), self.radii(i,1), self.radii(i,2), self.radii(i,3));
+                self.robot.model.points{i} = [X(:),Y(:),Z(:)];
+
+                self.robot.model.faces{i} = delaunay(self.robot.model.points{i});
+            end
+
+            self.robot.model.plot3d(self.robot.model.getpos());
+        end
+
+        %% Check for collisions
+        function collision = checkCollision(self, meshPoints)
+            collision = 0;
+            q = self.robot.model.getpos();
+            tr = zeros(4,4,self.robot.model.n+1);
+            tr(:,:,1) = self.robot.model.base;
+            L = self.robot.model.links;
+            for i = 1:self.robot.model.n
+                tr(:,:,i+1) = tr(:,:,i) * trotz(q(i)+L(i).offset) * transl(0,0,L(i).d) * transl(L(i).a,0,0) * trotx(L(i).alpha);
+            end
+
+            % Go through each ellipsoid
+            for i = 1: size(tr,3)
+                meshPointsAndOnes = [inv(tr(:,:,i)) * [meshPoints,ones(size(meshPoints,1),1)]']';
+                updatedmeshPoints = meshPointsAndOnes(:,1:3);
+                algebraicDist = GetAlgebraicDist(updatedmeshPoints, self.centerPoints(i,:), self.radii(i,:));
+                pointsInside = find(algebraicDist < 1);
+                collisionPoints = size(pointsInside,1);
+                if collisionPoints > 0
+                   collision = 1;
+                    break
+                end
+            end
         end
     end
-end
-
-% Go through until there are no step sizes larger than 1 degree
-q1 = robot.getpos();
-q2 = deg2rad([81.5, -12, 50, 51, 90, 0]);
-
-steps = 2;
-
-while ~isempty(find(1 < abs(diff(rad2deg(jtraj(q1, q2, steps)))),1))
-    steps = steps + 1;
-end
-qMatrix = jtraj(q1, q2, steps);
-
-% Check each of the joint states in the trajectory to work out which ones are in collision.
-% Return a logical vector of size steps which contains 0 = no collision (safe)
-% and 1 = yes collision (Unsafe).
-
-result = true(steps, 1);
-for i = 1:steps
-    % fprintf("Step: %d\n", i)
-    result(i) = IsCollision(robot, qMatrix(i, :), cupVertices, false);
-    % robot.animate(qMatrix(i,:));
-    % drawnow();
-    pause(0.02);
-    if result(i) == true
-        disp('UNSAFE: Object detected. Robot stopped')
-        break
-    end
-end
 end
