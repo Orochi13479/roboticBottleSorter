@@ -117,8 +117,9 @@ classdef CupStacker
 
             % Environment Setup
             environment(self);
+            cupPlacement(self);
 
-            % operate(self);
+            operate(self);
         end
 
         %%
