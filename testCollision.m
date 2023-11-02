@@ -18,9 +18,12 @@ q1 = deg2rad([50, 0, 0, 0, 0, 0]);
 q2 = deg2rad([-40, 0, 0, 0, 0, 0]);
 folderName = 'data';
 
-[cup, TRI, PTS, DATA] = PlaceObject(fullfile(folderName, 'brownTable.ply'), [0, 0, 0])
+[cup, TRI, PTS, DATA] = PlaceObject(fullfile(folderName, 'brownTable.ply'), [0, 0, 0]);
 
-qMatrix = collisionFreeTraj(rModel, q1, q2, PTS, TRI)
+rModel.animate(rModel.getpos());
+pause(0.1);
+
+qMatrix = collisionFreeTraj(rModel, q1, q2, PTS, TRI);
 
 input("Collision Free Traj Calced")
 
