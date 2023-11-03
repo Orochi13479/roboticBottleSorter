@@ -28,9 +28,9 @@ classdef CupStacker
 
             % Environment Initialisations
             % Initialise and Plot objects
-            % self.environment
-            % self.cupPlacement
-            % % self.LightCurtainDemo
+            self.environment
+            self.cupPlacement
+            % self.LightCurtainDemo
             % self.operate
 
             % Robot Initialisations
@@ -161,29 +161,34 @@ classdef CupStacker
         %% Cup and Cans Initial and Final Placements and Transforms Made
         function cupPlacement(self)
             UR3 = self.UR3e.model;
+            X250 = self.WidowX250.model;
+            WidowX250GripperL = self.X250GripperL.model;
+            WidowX250GripperR = self.X250GripperR.model;
 
-            cupHeight = 0.1;
+            UR3eGripperL = self.URGripperL.model;
+            UR3eGripperR = self.URGripperR.model;
+
+            cupHeight = 0.14;
+            canHeight = 0.1;
             tableHeight = 0.5;
             folderName = 'data';
 
-            % 14 Cups to Start with
-            % X250 has 7 Cups
-
+            % X250 has 7 Cans
             initCupArrayX250 = [; ...
-                -0.1, -0.25, tableHeight; ...
+                -0.1, -0.35, tableHeight; ...
                 -0.3, -0.3, tableHeight; ...
-                -0.45, -0.3, tableHeight; ...
-                -0.45, -0.3, tableHeight + cupHeight; ...
+                -0.45, -0.31, tableHeight; ...
+                -0.45, -0.31, tableHeight + canHeight; ...
                 -0.55, -0.4, tableHeight; ...
                 -0.6, -0.5, tableHeight; ...
-                -0.6, -0.5, tableHeight + cupHeight; ...
+                -0.4, -0.425, tableHeight; ...
                 ];
 
             for i = 1:length(initCupArrayX250)
                 % Place the Cup using PlaceObject
                 self.cupX250(i) = PlaceObject(fullfile(folderName, 'sodaCan.ply'), [initCupArrayX250(i, 1), initCupArrayX250(i, 2), initCupArrayX250(i, 3)]);
                 % Convert Coords to Transforms
-                self.initCupTrX250(:, :, i) = transl(initCupArrayX250(i, 1), initCupArrayX250(i, 2), initCupArrayX250(i, 3)+cupHeight) * troty(pi);
+                self.initCupTrX250(:, :, i) = transl(initCupArrayX250(i, 1), initCupArrayX250(i, 2), initCupArrayX250(i, 3) + canHeight) * trotx(pi) * trotz(pi/2);
             end
 
             % UR3e has 7 Cups
@@ -201,7 +206,7 @@ classdef CupStacker
                 % Place the Cup using PlaceObject
                 self.cupUR3(i) = PlaceObject(fullfile(folderName, 'plasticCup.ply'), [initCupArrayUR3(i, 1), initCupArrayUR3(i, 2), initCupArrayUR3(i, 3)]);
                 % Convert Coords to Transforms
-                self.initCupTrUR3(:, :, i) = transl(initCupArrayUR3(i, 1), initCupArrayUR3(i, 2), initCupArrayUR3(i, 3)+cupHeight) * troty(pi);
+                self.initCupTrUR3(:, :, i) = transl(initCupArrayUR3(i, 1), initCupArrayUR3(i, 2), initCupArrayUR3(i, 3)+cupHeight) * trotx(pi) * trotz(pi/2);
             end
 
 
@@ -209,35 +214,38 @@ classdef CupStacker
             [tri, self.cupVertices] = plyread(fullfile(folderName, 'plasticCup.ply'), 'tri');
             [tri, self.canVertices] = plyread(fullfile(folderName, 'sodaCan.ply'), 'tri');
 
+
             % Hardcode Final Cup Locations
             bin1x = 0.3;
             bin2x = -0.3;
             biny = -1.0;
+            binHeight = 0.15;
+
 
             finalCupArrayUR3 = [; ...
-                bin1x, biny, tableHeight; ...
-                bin1x, biny, tableHeight + cupHeight; ...
-                bin1x, biny, tableHeight + cupHeight; ...
-                bin1x, biny, tableHeight + cupHeight; ...
-                bin1x, biny, tableHeight + cupHeight; ...
-                bin1x, biny, tableHeight + cupHeight; ...
-                bin1x, biny, tableHeight + cupHeight; ...
+                bin1x, biny, tableHeight + binHeight; ...
+                bin1x, biny, tableHeight + binHeight; ...
+                bin1x, biny, tableHeight + binHeight; ...
+                bin1x, biny, tableHeight + binHeight; ...
+                bin1x, biny, tableHeight + binHeight; ...
+                bin1x, biny, tableHeight + binHeight; ...
+                bin1x, biny, tableHeight + binHeight; ...
                 ];
 
             finalCupArrayX250 = [; ...
-                bin2x, biny, tableHeight; ...
-                bin2x, biny, tableHeight + cupHeight; ...
-                bin2x, biny, tableHeight + cupHeight; ...
-                bin2x, biny, tableHeight + cupHeight; ...
-                bin2x, biny, tableHeight + cupHeight; ...
-                bin2x, biny, tableHeight + cupHeight; ...
-                bin2x, biny, tableHeight + cupHeight; ...
+                bin2x, biny, tableHeight + binHeight; ...
+                bin2x, biny, tableHeight + binHeight; ...
+                bin2x, biny, tableHeight + binHeight; ...
+                bin2x, biny, tableHeight + binHeight; ...
+                bin2x, biny, tableHeight + binHeight; ...
+                bin2x, biny, tableHeight + binHeight; ...
+                bin2x, biny, tableHeight + binHeight; ...
                 ];
 
             % Convert Final Coords to Transforms
             for i = 1:length(finalCupArrayUR3)
-                self.finalCupTrUR3(:, :, i) = transl(finalCupArrayUR3(i, 1), finalCupArrayUR3(i, 2), finalCupArrayUR3(i, 3)+cupHeight) * trotx(pi) * trotz(pi/2);
-                self.finalCupTrX250(:, :, i) = transl(finalCupArrayX250(i, 1), finalCupArrayX250(i, 2), finalCupArrayX250(i, 3)+cupHeight) * trotx(pi) * trotz(pi/2);
+                self.finalCupTrUR3(:, :, i) = transl(finalCupArrayUR3(i, 1), finalCupArrayUR3(i, 2), finalCupArrayUR3(i, 3)+cupHeight) * trotx(pi) * trotz(pi);
+                self.finalCupTrX250(:, :, i) = transl(finalCupArrayX250(i, 1), finalCupArrayX250(i, 2), finalCupArrayX250(i, 3)+canHeight) * trotx(pi) * trotz(0);
             end
 
             pause(1); % Let environment Spawn in
@@ -276,25 +284,25 @@ classdef CupStacker
                 trWaypointUR3 = UR3.fkine(deg2rad([-180,-70,80,260,-90,0])).T;
                 trWaypointX250 = X250.fkine(deg2rad([0,0,0,0,90,0])).T;
 
-                trInitialX250 = initCupTrX250(:, :, i);
-                trFinalX250 = finalCupTrX250(:, :, i);
+                trInitialX250 = self.initCupTrX250(:, :, i);
+                trFinalX250 = self.finalCupTrX250(:, :, i);
 
-                trInitialUR3 = initCupTrUR3(:, :, i);
-                trFinalUR3 = finalCupTrUR3(:, :, i);
+                trInitialUR3 = self.initCupTrUR3(:, :, i);
+                trFinalUR3 = self.finalCupTrUR3(:, :, i);
 
-                pickupTrajUR3 = RMRC(UR3e, trWaypointUR3, trInitialUR3, UR3e.getpos());
-                pickupTrajX250 = RMRC(WidowX250, trWaypointX250, trInitialX250, WidowX250.getpos());
+                pickupTrajUR3 = RMRC(UR3, trWaypointUR3, trInitialUR3, UR3.getpos());
+                pickupTrajX250 = RMRC(X250, trWaypointX250, trInitialX250, X250.getpos());
 
                 for j = 1:steps
-                    WidowX250.animate(pickupTrajX250(j, :));
-                    UR3e.animate(pickupTrajUR3(j, :));
-                    WidowX250GripperL.base = WidowX250.fkine(WidowX250.getpos()).T * trotx(-pi/2) * troty(pi) * transl(0, 0.023, 0);
+                    X250.animate(pickupTrajX250(j, :));
+                    UR3.animate(pickupTrajUR3(j, :));
+                    WidowX250GripperL.base = X250.fkine(X250.getpos()).T * trotx(-pi/2) * troty(pi) * transl(0, 0.023, 0);
                     WidowX250GripperL.animate(WidowX250GripperL.getpos());
-                    WidowX250GripperR.base = WidowX250.fkine(WidowX250.getpos()).T * trotx(-pi/2) * transl(0, 0.023, 0);
+                    WidowX250GripperR.base = X250.fkine(X250.getpos()).T * trotx(-pi/2) * transl(0, 0.023, 0);
                     WidowX250GripperR.animate(WidowX250GripperR.getpos());
-                    UR3eGripperL.base = UR3e.fkine(UR3e.getpos()).T * trotx(pi/2);
+                    UR3eGripperL.base = UR3.fkine(UR3.getpos()).T * trotx(pi/2);
                     UR3eGripperL.animate(UR3eGripperL.getpos());
-                    UR3eGripperR.base = UR3e.fkine(UR3e.getpos()).T * trotz(pi) * trotx(pi/2);
+                    UR3eGripperR.base = UR3.fkine(UR3.getpos()).T * trotz(pi) * trotx(pi/2);
                     UR3eGripperR.animate(UR3eGripperR.getpos());
                     drawnow();
                 end
@@ -307,49 +315,49 @@ classdef CupStacker
                     drawnow();
                 end
 
-                waypointUR31 = RMRC(UR3e, trInitialUR3, trWaypointUR3, UR3e.getpos());
-                waypointX2501= RMRC(WidowX250, trInitialX250, trWaypointX250, WidowX250.getpos());
+                waypointUR31 = RMRC(UR3, trInitialUR3, trWaypointUR3, UR3.getpos());
+                waypointX2501= RMRC(X250, trInitialX250, trWaypointX250, X250.getpos());
 
-                movePLY(UR3e, cupUR3, cupVertices, i, -cupHeight)
-                movePLY(WidowX250, cupX250, canVertices, i, -canHeight)
+                movePLY(UR3, self.cupUR3, self.cupVertices, i, -cupHeight)
+                movePLY(X250, self.cupX250, self.canVertices, i, -canHeight)
                 drawnow();
 
                 for j = 1:steps
-                    UR3e.animate(waypointUR31(j, :));
-                    WidowX250.animate(waypointX2501(j, :));
-                    WidowX250GripperL.base = WidowX250.fkine(WidowX250.getpos()).T * trotx(-pi/2) * troty(pi) * transl(0, 0.023, 0);
+                    UR3.animate(waypointUR31(j, :));
+                    X250.animate(waypointX2501(j, :));
+                    WidowX250GripperL.base = X250.fkine(X250.getpos()).T * trotx(-pi/2) * troty(pi) * transl(0, 0.023, 0);
                     WidowX250GripperL.animate(WidowX250GripperL.getpos());
-                    WidowX250GripperR.base = WidowX250.fkine(WidowX250.getpos()).T * trotx(-pi/2) * transl(0, 0.023, 0);
+                    WidowX250GripperR.base = X250.fkine(X250.getpos()).T * trotx(-pi/2) * transl(0, 0.023, 0);
                     WidowX250GripperR.animate(WidowX250GripperR.getpos());
-                    UR3eGripperL.base = UR3e.fkine(UR3e.getpos()).T * trotx(pi/2);
+                    UR3eGripperL.base = UR3.fkine(UR3.getpos()).T * trotx(pi/2);
                     UR3eGripperL.animate(UR3eGripperL.getpos());
-                    UR3eGripperR.base = UR3e.fkine(UR3e.getpos()).T * trotz(pi) * trotx(pi/2);
+                    UR3eGripperR.base = UR3.fkine(UR3.getpos()).T * trotz(pi) * trotx(pi/2);
                     UR3eGripperR.animate(UR3eGripperR.getpos());
 
                     if mod(j, 2) == 0
-                        movePLY(UR3e, cupUR3, cupVertices, i, -cupHeight)
-                        movePLY(WidowX250, cupX250, canVertices, i, -canHeight)
+                        movePLY(UR3, self.cupUR3, self.cupVertices, i, -cupHeight)
+                        movePLY(X250, self.cupX250, self.canVertices, i, -canHeight)
                     end
                     drawnow();
                 end
 
-                dropoffTrajUR3 = RMRC(UR3e, trWaypointUR3, trFinalUR3, UR3e.getpos());
-                dropoffTrajX250 = RMRC(WidowX250, trWaypointX250, trFinalX250, WidowX250.getpos());
+                dropoffTrajUR3 = RMRC(UR3, trWaypointUR3, trFinalUR3, UR3.getpos());
+                dropoffTrajX250 = RMRC(X250, trWaypointX250, trFinalX250, X250.getpos());
 
                 for j = 1:steps
-                    WidowX250.animate(dropoffTrajX250(j, :));
-                    UR3e.animate(dropoffTrajUR3(j, :));
-                    WidowX250GripperL.base = WidowX250.fkine(WidowX250.getpos()).T * trotx(-pi/2) * troty(pi) * transl(0, 0.023, 0);
+                    X250.animate(dropoffTrajX250(j, :));
+                    UR3.animate(dropoffTrajUR3(j, :));
+                    WidowX250GripperL.base = X250.fkine(X250.getpos()).T * trotx(-pi/2) * troty(pi) * transl(0, 0.023, 0);
                     WidowX250GripperL.animate(WidowX250GripperL.getpos());
-                    WidowX250GripperR.base = WidowX250.fkine(WidowX250.getpos()).T * trotx(-pi/2) * transl(0, 0.023, 0);
+                    WidowX250GripperR.base = X250.fkine(X250.getpos()).T * trotx(-pi/2) * transl(0, 0.023, 0);
                     WidowX250GripperR.animate(WidowX250GripperR.getpos());
-                    UR3eGripperL.base = UR3e.fkine(UR3e.getpos()).T * trotx(pi/2);
+                    UR3eGripperL.base = UR3.fkine(UR3.getpos()).T * trotx(pi/2);
                     UR3eGripperL.animate(UR3eGripperL.getpos());
-                    UR3eGripperR.base = UR3e.fkine(UR3e.getpos()).T * trotz(pi) * trotx(pi/2);
+                    UR3eGripperR.base = UR3.fkine(UR3.getpos()).T * trotz(pi) * trotx(pi/2);
                     UR3eGripperR.animate(UR3eGripperR.getpos());
                     if mod(j, 2) == 0
-                        movePLY(UR3e, cupUR3, cupVertices, i, -cupHeight)
-                        movePLY(WidowX250, cupX250, canVertices, i, -canHeight)
+                        movePLY(UR3, self.cupUR3, self.cupVertices, i, -cupHeight)
+                        movePLY(X250, X250, self.canVertices, i, -canHeight)
                     end
                     drawnow();
                 end
@@ -362,22 +370,22 @@ classdef CupStacker
                     drawnow();
                 end
 
-                movePLY(UR3e, cupUR3, cupVertices, i, -cupHeight - 0.14)
-                movePLY(WidowX250, cupX250, canVertices, i, -canHeight - 0.1)
+                movePLY(UR3, self.cupUR3, self.cupVertices, i, -cupHeight - 0.14)
+                movePLY(X250, self.cupX250, self.canVertices, i, -canHeight - 0.1)
 
-                waypointUR32 = RMRC(UR3e, trFinalUR3, trWaypointUR3, UR3e.getpos());
-                waypointX2502 = RMRC(WidowX250, trFinalX250, trWaypointX250, WidowX250.getpos());
+                waypointUR32 = RMRC(UR3, trFinalUR3, trWaypointUR3, UR3.getpos());
+                waypointX2502 = RMRC(X250, trFinalX250, trWaypointX250, X250.getpos());
 
                 for j = 1:steps
-                    WidowX250.animate(waypointX2502(j, :));
-                    UR3e.animate(waypointUR32(j, :));
-                    WidowX250GripperL.base = WidowX250.fkine(WidowX250.getpos()).T * trotx(-pi/2) * troty(pi) * transl(0, 0.023, 0);
+                    X250.animate(waypointX2502(j, :));
+                    UR3.animate(waypointUR32(j, :));
+                    WidowX250GripperL.base = X250.fkine(X250.getpos()).T * trotx(-pi/2) * troty(pi) * transl(0, 0.023, 0);
                     WidowX250GripperL.animate(WidowX250GripperL.getpos());
-                    WidowX250GripperR.base = WidowX250.fkine(WidowX250.getpos()).T * trotx(-pi/2) * transl(0, 0.023, 0);
+                    WidowX250GripperR.base = X250.fkine(X250.getpos()).T * trotx(-pi/2) * transl(0, 0.023, 0);
                     WidowX250GripperR.animate(WidowX250GripperR.getpos());
-                    UR3eGripperL.base = UR3e.fkine(UR3e.getpos()).T * trotx(pi/2);
+                    UR3eGripperL.base = UR3.fkine(UR3.getpos()).T * trotx(pi/2);
                     UR3eGripperL.animate(UR3eGripperL.getpos());
-                    UR3eGripperR.base = UR3e.fkine(UR3e.getpos()).T * trotz(pi) * trotx(pi/2);
+                    UR3eGripperR.base = UR3.fkine(UR3.getpos()).T * trotz(pi) * trotx(pi/2);
                     UR3eGripperR.animate(UR3eGripperR.getpos());
                     drawnow();
                 end
