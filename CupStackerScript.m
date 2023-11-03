@@ -264,6 +264,10 @@ for i = 1:(length(finalCupArrayUR3))
 
     waypointUR31 = RMRC(UR3e, trInitialUR3, trWaypointUR3, UR3e.getpos());
     waypointX2501= RMRC(WidowX250, trInitialX250, trWaypointX250, WidowX250.getpos());
+    
+    movePLY(UR3e, cupUR3, cupVertices, i, -cupHeight)
+    movePLY(WidowX250, cupX250, canVertices, i, -canHeight)
+    drawnow();
 
     for j = 1:steps
         UR3e.animate(waypointUR31(j, :));
@@ -276,6 +280,11 @@ for i = 1:(length(finalCupArrayUR3))
         UR3eGripperL.animate(UR3eGripperL.getpos());
         UR3eGripperR.base = UR3e.fkine(UR3e.getpos()).T * trotz(pi) * trotx(pi/2);
         UR3eGripperR.animate(UR3eGripperR.getpos());
+
+        if mod(j, 2) == 0
+            movePLY(UR3e, cupUR3, cupVertices, i, -cupHeight)
+            movePLY(WidowX250, cupX250, canVertices, i, -canHeight)
+        end
         drawnow();
     end
     
@@ -293,6 +302,10 @@ for i = 1:(length(finalCupArrayUR3))
         UR3eGripperL.animate(UR3eGripperL.getpos());
         UR3eGripperR.base = UR3e.fkine(UR3e.getpos()).T * trotz(pi) * trotx(pi/2);
         UR3eGripperR.animate(UR3eGripperR.getpos());
+        if mod(j, 2) == 0
+            movePLY(UR3e, cupUR3, cupVertices, i, -cupHeight)
+            movePLY(WidowX250, cupX250, canVertices, i, -canHeight)
+        end
         drawnow();
     end
 
@@ -304,6 +317,9 @@ for i = 1:(length(finalCupArrayUR3))
         drawnow();
     end
     
+    movePLY(UR3e, cupUR3, cupVertices, i, -cupHeight - 0.14)
+    movePLY(WidowX250, cupX250, canVertices, i, -canHeight - 0.1)
+
     waypointUR32 = RMRC(UR3e, trFinalUR3, trWaypointUR3, UR3e.getpos());
     waypointX2502 = RMRC(WidowX250, trFinalX250, trWaypointX250, WidowX250.getpos());
 
