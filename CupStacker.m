@@ -28,10 +28,10 @@ classdef CupStacker
 
             % Environment Initialisations
             % Initialise and Plot objects
-            self.environment
-            self.cupPlacement
-            % self.LightCurtainDemo
-            self.operate
+            % self.environment
+            % self.cupPlacement
+            % % self.LightCurtainDemo
+            % self.operate
 
             % Robot Initialisations
             % Initialise and Plot the UR3e object
@@ -108,14 +108,6 @@ classdef CupStacker
             UR3eGripperL.animate([0, 0, 0]);
             UR3eGripperR.animate([0, 0, 0]);
 
-            q1 = [-pi / 4, 0, 0];
-            q2 = [pi / 4, 0, 0];
-            steps = 2;
-            while ~isempty(find(1 < abs(diff(rad2deg(jtraj(q1, q2, steps)))),1))
-                steps = steps + 1;
-            end
-            qMatrix = jtraj(q1, q2, steps);
-
             disp('Robots Mounted');
 
             % Environment Setup
@@ -168,6 +160,8 @@ classdef CupStacker
         end
         %% Cup and Cans Initial and Final Placements and Transforms Made
         function cupPlacement(self)
+            UR3 = self.UR3e.model;
+
             cupHeight = 0.1;
             tableHeight = 0.5;
             folderName = 'data';

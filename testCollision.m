@@ -13,9 +13,9 @@ rModel = r.model;
 [armRotationMatrix1, armTranslationVector1] = tr2rt(rModel.base);
 translationVector1 = [0.95, -0.6, 0.5];
 rModel.base = rt2tr(armRotationMatrix1, translationVector1);
-% rModel.teach()
-q1 = deg2rad([40,90,20,45,90,0]);
-q2 = deg2rad([-135, 90,20,-30,90,0]);
+
+q1 = deg2rad([40, 90, 20, 45, 90, 0]);
+q2 = deg2rad([-135, 90, 20, -30, 90, 0]);
 folderName = 'data';
 
 [cup, TRI, PTS, DATA] = PlaceObject(fullfile(folderName, 'brownTable.ply'), [0, 0, 0]);
@@ -36,7 +36,6 @@ disp("Calculating Traj Around Table Leg")
 qMatrix = collisionFreeTraj(rModel, q1, q2, PTS, TRI);
 
 input("Collision Free Traj Calced")
-
 for j = 1:length(qMatrix)
     rModel.animate(qMatrix(j, :));
     drawnow();
