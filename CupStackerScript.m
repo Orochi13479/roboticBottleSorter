@@ -1,4 +1,4 @@
-close all;
+% close all;
 clear all;
 clc;
 clf;
@@ -106,8 +106,8 @@ surf([-4.3, -4.3; 4.3, 4.3] ...
     , 'CData', imread(fullfile(folderName, 'woodenFloor.jpg')), 'FaceColor', 'texturemap');
 
 % Place objects in environment
-PlaceObject(fullfile(folderName, 'rubbishBin2.ply'), [-0.4, -1, tableHeight]);
-PlaceObject(fullfile(folderName, 'rubbishBin2.ply'), [0.2, -1, tableHeight]);
+PlaceObject(fullfile(folderName, 'rubbishBin2.ply'), [-0.3, -1, tableHeight]);
+PlaceObject(fullfile(folderName, 'rubbishBin2.ply'), [0.3, -1, tableHeight]);
 PlaceObject(fullfile(folderName, 'brownTable.ply'), [0, 0, 0]);
 PlaceObject(fullfile(folderName, 'warningSign.ply'), [1.2, -1.5, 0]);
 % PlaceObject(fullfile(folderName, 'assembledFence.ply'), [0.25, 0.7, -0.97]);
@@ -127,7 +127,7 @@ PlaceObject(fullfile(folderName, 'lightCurtain.ply'), [-1.2, 1, 0.85]);
 
 %% Place Movable objects
 % Create Cups and Place Randomly
-cupHeight = 0.1;
+cupHeight = 0.14;
 
 % 14 Cups to Start with
 % X250 has 7 Cups
@@ -144,9 +144,9 @@ initCupArrayX250 = [; ...
 
 for i = 1:length(initCupArrayX250)
     % Place the Cup using PlaceObject
-    self.cupX250(i) = PlaceObject(fullfile(folderName, 'sodaCan.ply'), [initCupArrayX250(i, 1), initCupArrayX250(i, 2), initCupArrayX250(i, 3)]);
+    cupX250(i) = PlaceObject(fullfile(folderName, 'sodaCan.ply'), [initCupArrayX250(i, 1), initCupArrayX250(i, 2), initCupArrayX250(i, 3)]);
     % Convert Coords to Transforms
-    self.initCupTrX250(:, :, i) = transl(initCupArrayX250(i, 1), initCupArrayX250(i, 2), initCupArrayX250(i, 3)+cupHeight) * troty(pi);
+    initCupTrX250(:, :, i) = transl(initCupArrayX250(i, 1), initCupArrayX250(i, 2), initCupArrayX250(i, 3)+cupHeight) * troty(pi);
 end
 
 % UR3e has 7 Cups
@@ -162,47 +162,48 @@ initCupArrayUR3 = [; ...
 
 for i = 1:length(initCupArrayUR3)
     % Place the Cup using PlaceObject
-    self.cupUR3(i) = PlaceObject(fullfile(folderName, 'plasticCup.ply'), [initCupArrayUR3(i, 1), initCupArrayUR3(i, 2), initCupArrayUR3(i, 3)]);
+    cupUR3(i) = PlaceObject(fullfile(folderName, 'plasticCup.ply'), [initCupArrayUR3(i, 1), initCupArrayUR3(i, 2), initCupArrayUR3(i, 3)]);
     % Convert Coords to Transforms
-    self.initCupTrUR3(:, :, i) = transl(initCupArrayUR3(i, 1), initCupArrayUR3(i, 2), initCupArrayUR3(i, 3)+cupHeight) * troty(pi);
+    initCupTrUR3(:, :, i) = transl(initCupArrayUR3(i, 1), initCupArrayUR3(i, 2), initCupArrayUR3(i, 3)+cupHeight) * troty(pi);
 end
 
 
 % Get Cup and Can vertices from ply file
-[tri, self.cupVertices] = plyread(fullfile(folderName, 'plasticCup.ply'), 'tri');
-[tri, self.canVertices] = plyread(fullfile(folderName, 'sodaCan.ply'), 'tri');
+[tri, cupVertices] = plyread(fullfile(folderName, 'plasticCup.ply'), 'tri');
+[tri, canVertices] = plyread(fullfile(folderName, 'sodaCan.ply'), 'tri');
 
 
 % Hardcode Final Cup Locations
 bin1x = 0.3;
 bin2x = -0.3;
 biny = -1.0;
+binHeight = 0.15;
 
 
 finalCupArrayUR3 = [; ...
-    bin1x, biny, tableHeight; ...
-    bin1x, biny, tableHeight + cupHeight; ...
-    bin1x, biny, tableHeight + cupHeight; ...
-    bin1x, biny, tableHeight + cupHeight; ...
-    bin1x, biny, tableHeight + cupHeight; ...
-    bin1x, biny, tableHeight + cupHeight; ...
-    bin1x, biny, tableHeight + cupHeight; ...
+    bin1x, biny, tableHeight + binHeight; ...
+    bin1x, biny, tableHeight + binHeight; ...
+    bin1x, biny, tableHeight + binHeight; ...
+    bin1x, biny, tableHeight + binHeight; ...
+    bin1x, biny, tableHeight + binHeight; ...
+    bin1x, biny, tableHeight + binHeight; ...
+    bin1x, biny, tableHeight + binHeight; ...
     ];
 
 finalCupArrayX250 = [; ...
-    bin2x, biny, tableHeight; ...
-    bin2x, biny, tableHeight + cupHeight; ...
-    bin2x, biny, tableHeight + cupHeight; ...
-    bin2x, biny, tableHeight + cupHeight; ...
-    bin2x, biny, tableHeight + cupHeight; ...
-    bin2x, biny, tableHeight + cupHeight; ...
-    bin2x, biny, tableHeight + cupHeight; ...
+    bin2x, biny, tableHeight + binHeight; ...
+    bin2x, biny, tableHeight + binHeight; ...
+    bin2x, biny, tableHeight + binHeight; ...
+    bin2x, biny, tableHeight + binHeight; ...
+    bin2x, biny, tableHeight + binHeight; ...
+    bin2x, biny, tableHeight + binHeight; ...
+    bin2x, biny, tableHeight + binHeight; ...
     ];
 
 % Convert Final Coords to Transforms
 for i = 1:length(finalCupArrayUR3)
-    self.finalCupTrUR3(:, :, i) = transl(finalCupArrayUR3(i, 1), finalCupArrayUR3(i, 2), finalCupArrayUR3(i, 3)+cupHeight) * trotx(pi) * trotz(pi/2);
-    self.finalCupTrX250(:, :, i) = transl(finalCupArrayX250(i, 1), finalCupArrayX250(i, 2), finalCupArrayX250(i, 3)+cupHeight) * trotx(pi) * trotz(pi/2);
+    finalCupTrUR3(:, :, i) = transl(finalCupArrayUR3(i, 1), finalCupArrayUR3(i, 2), finalCupArrayUR3(i, 3)+cupHeight) * trotx(pi) * trotz(pi/2);
+    finalCupTrX250(:, :, i) = transl(finalCupArrayX250(i, 1), finalCupArrayX250(i, 2), finalCupArrayX250(i, 3)+cupHeight) * trotx(pi) * trotz(pi/2);
 end
 
 pause(1); % Let environment Spawn in
@@ -213,8 +214,8 @@ disp('Setup is complete');
 %% Begin operation
 % SMOOTH SYNCRONOUS MOVEMENT OF BOTH ROBOTS ACHIEVED
 steps = 200;
-
-% input("Press Enter to See Demo")
+% UR3e.teach();
+input("Press Enter to See Demo")
 
 % TEMPORARY FOR DEMO VIDEO
 % Calculate the desired end effector position and orientation
@@ -253,39 +254,51 @@ for i = 1:(length(finalCupArrayUR3))
     disp("Running...")
     if i == 1
         % Initial Starting Position
-        qStartX250 = zeros(1, WidowX250.n);
-        qStartUR3 = zeros(1, UR3e.n);
+        % qStartX250 = zeros(1, WidowX250.n);
+        trStartX250 = initCupTrX250(:, :, i);
+        trStartUR3 = initCupTrUR3(:, :, i);
+        % qStartUR3 = zeros(1, UR3e.n);
     else
-        qStartX250 = WidowX250.ikcon(self.finalCupTrX250(:, :, i-1), qCommonDropoffX250);
-        qStartUR3 = UR3e.ikcon(self.finalCupTrUR3(:, :, i-1), qCommonDropoffUR3);
+        % qStartX250 = WidowX250.ikcon(finalCupTrX250(:, :, i-1), qCommonDropoffX250);
+        % qStartUR3 = UR3e.ikcon(finalCupTrUR3(:, :, i-1), qCommonDropoffUR3);
+        trStartX250 = finalCupTrX250(:, :, i-1);
+        trStartUR3 = finalCupTrUR3(:, :, i-1);
     end
-    qInitialX250 = WidowX250.ikcon(self.initCupTrX250(:, :, i), qCommonPickupX250);
-    qFinalX250 = WidowX250.ikcon(self.finalCupTrX250(:, :, i), qCommonDropoffX250);
+
+    % qInitialX250 = WidowX250.ikcon(initCupTrX250(:, :, i), qCommonPickupX250);
+    % qFinalX250 = WidowX250.ikcon(finalCupTrX250(:, :, i), qCommonDropoffX250);
     % pickupTrajX250 = jtraj(qStartX250, qInitialX250, steps);
     % dropoffTrajX250 = jtraj(qInitialX250, qFinalX250, steps);
 
-    qInitialUR3 = UR3e.ikcon(self.initCupTrUR3(:, :, i), qCommonPickupUR3);
-    qFinalUR3 = UR3e.ikcon(self.finalCupTrUR3(:, :, i), qCommonDropoffUR3);
+    % qInitialUR3 = UR3e.ikcon(initCupTrUR3(:, :, i), qCommonPickupUR3);
+    % qFinalUR3 = UR3e.ikcon(finalCupTrUR3(:, :, i), qCommonDropoffUR3);
     % pickupTrajUR3 = jtraj(qStartUR3, qInitialUR3, steps);
     % dropoffTrajUR3 = jtraj(qInitialUR3, qFinalUR3, steps);
 
-
     % RMRC ATTEMPT
-    trStartX250 = WidowX250.fkine(qStartX250).T;
-    trInitialX250 = WidowX250.fkine(qInitialX250).T;
-    trFinalX250 = WidowX250.fkine(qFinalX250).T;
+    % trStartX250 = WidowX250.fkine(qStartX250).T;
+    % trInitialX250 = WidowX250.fkine(qInitialX250).T;
+    % trFinalX250 = WidowX250.fkine(qFinalX250).T;
+    %
+    % trStartUR3 = UR3e.fkine(qStartUR3).T;
+    % trInitialUR3 = UR3e.fkine(qInitialUR3).T;
+    % trFinalUR3 = UR3e.fkine(qFinalUR3).T;
+    
+    % trWaypointX250 = WidowX250.fkine(deg2rad([])).T;
+    trWaypointUR3 = UR3e.fkine(deg2rad([-180,-70,80,260,-90,0])).T;
 
-    trStartUR3 = UR3e.fkine(qStartUR3).T;
-    trInitialUR3 = UR3e.fkine(qInitialUR3).T;
-    trFinalUR3 = UR3e.fkine(qFinalUR3).T;
+    trInitialX250 = initCupTrX250(:, :, i);
+    trFinalX250 = finalCupTrX250(:, :, i);
 
-    pickupTrajX250 = RMRC(WidowX250, trStartX250, trInitialX250);
-    dropoffTrajX250 = RMRC(WidowX250, trInitialX250, trFinalX250);
-
-    pickupTrajUR3 = RMRC(UR3e, trInitialUR3, trFinalUR3);
-    dropoffTrajUR3 = RMRC(UR3e, trFinalUR3, trFinalUR3);
-
-
+    trInitialUR3 = initCupTrUR3(:, :, i);
+    trFinalUR3 = finalCupTrUR3(:, :, i);
+    q0 = zeros(1,6)
+    pickupTrajX250 = RMRC(WidowX250, trStartX250, trInitialX250, q0);
+    dropoffTrajX250 = RMRC(WidowX250, trInitialX250, trFinalX250, q0);
+    
+    UR3e.getpos()
+    pickupTrajUR3 = RMRC(UR3e, trWaypointUR3, trInitialUR3, UR3e.getpos());
+        
     for j = 1:steps
         WidowX250.animate(pickupTrajX250(j, :));
         UR3e.animate(pickupTrajUR3(j, :));
@@ -307,6 +320,25 @@ for i = 1:(length(finalCupArrayUR3))
         UR3eGripperR.animate(UR3ecloseTraj(j, :));
         drawnow();
     end
+    UR3e.getpos()
+    waypointUR31 = RMRC(UR3e, trInitialUR3, trWaypointUR3, UR3e.getpos());
+
+    for j = 1:steps
+        % WidowX250.animate(pickupTrajX250(j, :));
+        UR3e.animate(waypointUR31(j, :));
+        WidowX250GripperL.base = WidowX250.fkine(WidowX250.getpos()).T * trotx(-pi/2) * troty(pi) * transl(0, 0.023, 0);
+        WidowX250GripperL.animate(WidowX250GripperL.getpos());
+        WidowX250GripperR.base = WidowX250.fkine(WidowX250.getpos()).T * trotx(-pi/2) * transl(0, 0.023, 0);
+        WidowX250GripperR.animate(WidowX250GripperR.getpos());
+        UR3eGripperL.base = UR3e.fkine(UR3e.getpos()).T * trotx(pi/2);
+        UR3eGripperL.animate(UR3eGripperL.getpos());
+        UR3eGripperR.base = UR3e.fkine(UR3e.getpos()).T * trotz(pi) * trotx(pi/2);
+        UR3eGripperR.animate(UR3eGripperR.getpos());
+        drawnow();
+    end
+    
+    UR3e.getpos()
+    dropoffTrajUR3 = RMRC(UR3e, trWaypointUR3, trFinalUR3, UR3e.getpos());
 
     for j = 1:steps
         WidowX250.animate(dropoffTrajX250(j, :));
@@ -327,6 +359,22 @@ for i = 1:(length(finalCupArrayUR3))
         WidowX250GripperR.animate(openTraj(j, :));
         UR3eGripperL.animate(UR3eopenTraj(j, :));
         UR3eGripperR.animate(UR3eopenTraj(j, :));
+        drawnow();
+    end
+    UR3e.getpos()
+    waypointUR32 = RMRC(UR3e, trStartUR3, trWaypointUR3, UR3e.getpos());
+
+    for j = 1:steps
+        % WidowX250.animate(pickupTrajX250(j, :));
+        UR3e.animate(waypointUR32(j, :));
+        WidowX250GripperL.base = WidowX250.fkine(WidowX250.getpos()).T * trotx(-pi/2) * troty(pi) * transl(0, 0.023, 0);
+        WidowX250GripperL.animate(WidowX250GripperL.getpos());
+        WidowX250GripperR.base = WidowX250.fkine(WidowX250.getpos()).T * trotx(-pi/2) * transl(0, 0.023, 0);
+        WidowX250GripperR.animate(WidowX250GripperR.getpos());
+        UR3eGripperL.base = UR3e.fkine(UR3e.getpos()).T * trotx(pi/2);
+        UR3eGripperL.animate(UR3eGripperL.getpos());
+        UR3eGripperR.base = UR3e.fkine(UR3e.getpos()).T * trotz(pi) * trotx(pi/2);
+        UR3eGripperR.animate(UR3eGripperR.getpos());
         drawnow();
     end
 end

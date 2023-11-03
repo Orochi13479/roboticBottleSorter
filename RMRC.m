@@ -1,26 +1,34 @@
 %% FROM Lab9Solution_Question1.m Modified
 
-function [qMatrix] = RMRC(robot, startTr, endTr)
+function [qMatrix] = RMRC(robot, startTr, endTr, q0)
 
 time = 10; % Total time (s)
 deltaT = 0.05; % Control frequency
 
 steps = time / deltaT; % No. of steps for simulation
 epsilon = 0.1; % Threshold value for manipulability/Damped Least Squares
-W = diag([1, 1, 1, 0.5, 0.5, 0.5]); % Weighting matrix for the velocity vector
+W = diag([1, 1, 0.5, 0.1, 0.1, 0.1]); % Weighting matrix for the velocity vector
 
 
 % Allocate array data
 m = zeros(steps, 1); % Array for Measure of Manipulability
 qMatrix = zeros(steps, robot.n); % Array for joint anglesR
 qdot = zeros(steps, robot.n); % Array for joint velocities
+theta = zeros(3,steps);         % Array for roll-pitch-yaw angles
 
 % Set up trajectory
 s = lspb(0, 1, steps); % lspb - Linear segment with parabolic bends
-q0 = zeros(1, robot.n); % Initial joint angles
+% q0 = zeros(1, robot.n); % Initial joint angles
 
 TMatrix = ctraj(startTr, endTr, s);
+
 theta = tr2rpy(TMatrix);
+
+% for i=1:steps
+%     theta(1,i) = 0;                 % Roll angle 
+%     theta(2,i) = pi;                % Pitch angle
+%     theta(3,i) = 0;                 % Yaw angle
+% end
 
 T = TMatrix(:, :, 1); % Create a transformation of first point and angle
 qMatrix(1, :) = robot.ikcon(T, q0); % Solve joint angles to achieve first waypoint (this might or might not have some error)
@@ -30,7 +38,8 @@ for i = 1:steps - 1
     % Solve for the desired linear and angular velocities
     T = robot.fkine(qMatrix(i, :)).T; % Get forward transformation at current joint state (as the joint angles obtained from ikcon are not always accurate)
     deltaX = TMatrix(1:3, 4, i+1) - T(1:3, 4); % x are the position sets and T represents the actual position that the robot is in
-    Rd = rpy2r(theta(i+1, 1), theta(i+1, 2), theta(i+1, 3)); % Get next RPY angles, convert to rotation matrix
+    % Rd = rpy2r(theta(1,i+1),theta(2,i+1),theta(3,i+1));  % Get next RPY angles, convert to rotation matrix
+    Rd = rpy2r(theta(i+1, 1), theta(i+1, 2), theta(i+1, 3));
     Ra = T(1:3, 1:3); % Current end-effector rotation matrix
     Rdot = (1 / deltaT) * (Rd - Ra); % Calculate rotation matrix error
     S = Rdot * Ra'; % Skew symmetric of roll, pitch, and yaw velocities. (Used as the derivative of the rotation matrix is equal to the negative derivative of the transpose of the rotation matrix)
