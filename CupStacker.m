@@ -28,8 +28,8 @@ classdef CupStacker
 
             % Environment Initialisations
             % Initialise and Plot objects
-            self.environment
-            self.cupPlacement
+            % self.environment
+            % self.cupPlacement
             % self.LightCurtainDemo
             % self.operate
 
@@ -112,7 +112,7 @@ classdef CupStacker
 
             % Environment Setup
             environment(self);
-            cupPlacement(self);
+            % cupPlacement(self);
             % operate(self);
 
         end
