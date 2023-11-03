@@ -2,13 +2,12 @@
 
 function [qMatrix] = RMRC(robot, startTr, endTr, q0)
 
-time = 10; % Total time (s)
+time = 7.5; % Total time (s)
 deltaT = 0.05; % Control frequency
 
 steps = time / deltaT; % No. of steps for simulation
 epsilon = 0.1; % Threshold value for manipulability/Damped Least Squares
-W = diag([1, 1, 0.5, 0.1, 0.1, 0.1]); % Weighting matrix for the velocity vector
-
+W = diag([1, 1, 1, 0.1, 0.1, 0.1]); % Weighting matrix for the velocity vector
 
 % Allocate array data
 m = zeros(steps, 1); % Array for Measure of Manipulability
@@ -18,17 +17,9 @@ theta = zeros(3,steps);         % Array for roll-pitch-yaw angles
 
 % Set up trajectory
 s = lspb(0, 1, steps); % lspb - Linear segment with parabolic bends
-% q0 = zeros(1, robot.n); % Initial joint angles
 
 TMatrix = ctraj(startTr, endTr, s);
-
 theta = tr2rpy(TMatrix);
-
-% for i=1:steps
-%     theta(1,i) = 0;                 % Roll angle 
-%     theta(2,i) = pi;                % Pitch angle
-%     theta(3,i) = 0;                 % Yaw angle
-% end
 
 T = TMatrix(:, :, 1); % Create a transformation of first point and angle
 qMatrix(1, :) = robot.ikcon(T, q0); % Solve joint angles to achieve first waypoint (this might or might not have some error)
