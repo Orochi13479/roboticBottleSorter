@@ -96,7 +96,7 @@ surf([-4.3, -4.3; 4.3, 4.3] ...
     , 'CData', imread(fullfile(folderName, 'woodenFloor.jpg')), 'FaceColor', 'texturemap');
 
 % Place objects in environment
-PlaceObject(fullfile(folderName, 'emergencyStopButton.ply'), [0.65, -1.3, tableHeight]);
+PlaceObject(fullfile(folderName, 'emergencyStopButton.ply'), [-1.5, -0.2, 0.6]);
 PlaceObject(fullfile(folderName, 'fireExtinguisherElevated.ply'), [-1.25, 1.5, 0.45]);
 PlaceObject(fullfile(folderName, 'rubbishBin2.ply'), [-0.3, -1, tableHeight]);
 PlaceObject(fullfile(folderName, 'rubbishBin2.ply'), [0.3, -1, tableHeight]);
@@ -114,8 +114,6 @@ PlaceObject(fullfile(folderName, 'lightCurtain.ply'), [1.2, -1.5, 0.85]);
 PlaceObject(fullfile(folderName, 'lightCurtain.ply'), [1.2, 1, 0.85]);
 PlaceObject(fullfile(folderName, 'lightCurtain.ply'), [-1.2, -1.5, 0.85]);
 PlaceObject(fullfile(folderName, 'lightCurtain.ply'), [-1.2, 1, 0.85]);
-
-% PlaceObject('emergencyStopButton.ply', [0.96, 0.6, TableDimensions(3)]);
 
 %% Place Movable objects
 % Create Cups and Place Randomly
