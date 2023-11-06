@@ -1,6 +1,8 @@
 classdef WidowX250Gripper < RobotBaseClass
 
-    %% X250Gripper created by 14289692
+    %% X250Gripper
+    % Manufacturer Provided STL files converted and altered to ensure compatibility by 14289692 & 14289716
+    % Manufacturer Provided Product of Exponentials converted to DH parameters by 14289692
 
     properties (Access = public)
         plyFileNameStem = 'X250Gripper';

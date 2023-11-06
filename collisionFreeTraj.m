@@ -1,5 +1,6 @@
 function [qMatrix] = collisionFreeTraj(robot, q1, q2, vertex, faces)
-
+tic
+% Calculate face normals for the obstacles
 faceNormals = zeros(size(faces, 1), 3);
 for faceIndex = 1:size(faces, 1)
     v1 = vertex(faces(faceIndex, 1)', :);
@@ -8,45 +9,45 @@ for faceIndex = 1:size(faces, 1)
     faceNormals(faceIndex, :) = unit(cross(v2-v1, v3-v1));
 end
 
-disp("RRT Collision detection")
-
+% Initialize variables for collision-free trajectory planning
 qWaypoints = [q1; q2];
 isCollision = true;
 checkedTillWaypoint = 1;
 qMatrix = [];
-qLengthOpt = 150; % Upper limit on the acceptable length of RRT Traj, Basically a minimum cost function, Increase if it is taking too long to find a traj
-tic
+qLengthOpt = 150; % Define the maximum acceptable trajectory length
 while (isCollision)
     startWaypoint = checkedTillWaypoint;
+    % Loop through waypoints to generate the trajectory
     for i = startWaypoint:size(qWaypoints, 1) - 1
+        % Interpolate waypoints with a smaller step size for trajectory
         qMatrixJoin = InterpolateWaypointRadians(qWaypoints(i:i+1, :), deg2rad(10));
+        % Check for collision with obstacles
         if ~IsCollision(robot, qMatrixJoin, faces, vertex, faceNormals)
             qMatrix = [qMatrix; qMatrixJoin]; %#ok<AGROW>
             isCollision = false;
             checkedTillWaypoint = i + 1;
-            % Now try and join to the final goal (q2)
+            % Attempt joining to the final goal (q2)
             qMatrixJoin = InterpolateWaypointRadians([qMatrix(end, :); q2], deg2rad(10));
             if ~IsCollision(robot, qMatrixJoin, faces, vertex, faceNormals)
                 qMatrix = [qMatrix; qMatrixJoin];
-                % Reached goal without collision, so break out
-                % disp("Found Collision Free Traj")
+                % Goal reached without collision, break out of the loop
                 break;
             end
         else
-            % Randomly pick a pose that is not in collision
-            qRand = (2 * rand(1, 6) - 1) * pi;
+            % Randomly select a pose not causing collision
+            qRand = (2 * rand(1, robot.n) - 1) * pi;
             while IsCollision(robot, qRand, faces, vertex, faceNormals)
-                qRand = (2 * rand(1, 6) - 1) * pi;
+                qRand = (2 * rand(1, robot.n) - 1) * pi;
             end
-            qWaypoints = [qWaypoints(1:i, :); qRand; qWaypoints(i+1:end, :)];
+            qWaypoints = [qWaypoints(1:i, :); qRand; qWaypoints(i + 1:end, :)];
             isCollision = true;
             break;
         end
     end
 
+    % Check if the trajectory length is excessive and reset if so
     if length(qMatrix) > qLengthOpt
-        disp("Traj too Long Trying again")
-        % Reset Variables to rerun RRT
+        disp("Trajectory too long. Retrying.")
         qWaypoints = [q1; q2];
         isCollision = true;
         checkedTillWaypoint = 1;
@@ -54,8 +55,8 @@ while (isCollision)
         continue
     end
 end
-disp("RRT Took: "+num2str(toc));
-disp("qMatrix Length: "+num2str(length(qMatrix)));
+disp("RRT took: "+num2str(toc)); % Display time taken for RRT planning
+disp("qMatrix length: "+num2str(length(qMatrix))); % Display the length of the generated trajectory
 end
 
 %% IsIntersectionPointInsideTriangle

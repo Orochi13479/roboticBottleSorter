@@ -9,10 +9,8 @@ The WidowX 250 Robot Arm 6DOF by Trossen Robotics was chosen as the custom robot
 
 ## Running the Code
 To Launch the MATLAB Simulator run the code from the MATLAB <em>CupStacker.m</em> Class file.
-
-```
-test
-```
+There are also supplementary files for demonstration of particular features such as collision detection and light curtains, these will all have the suffix of Demo.m.
+Also located in realRobot.m is an pseudo implementation of the simualtion on the real robot, specifically the UR3e.
 
 ### IMPORTANT ###
 Inside the robotics toolbox please delete/comment out line 117-118 in the animate.m file within the rvctools/robot/@Seriallink/animate.m Directory.

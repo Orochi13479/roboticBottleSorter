@@ -3,7 +3,7 @@ clc;
 clf;
 hold on;
 axis equal;
-
+set(gcf, 'color', 'g');
 % Force figure limits
 zlim([0, 2]);
 xlim([-2, 2]); % xlim([-4.2, 4.2]); <-- SHOULD PROBS MAKE SMALLER
@@ -44,19 +44,8 @@ UR3eGripperR.delay = 0;
 [armRotationMatrix2, armTranslationVector2] = tr2rt(UR3e.base);
 
 % Translate along each axis
-% translationVector1 = [-0.3, 0, 0.5];
-% translationVector2 = [0.3, 0, 0.5];
-
 translationVector1 = [-0.3, -0.6, 0.5];
 translationVector2 = [0.3, -0.6, 0.5];
-
-% Specify the rotation angle in radians
-angle = pi;
-
-% Create a rotation matrix for the Z-axis rotation
-Rz = [cos(angle), -sin(angle), 0; ...
-    sin(angle), cos(angle), 0; ...
-    0, 0, 1];
 
 WidowX250.base = rt2tr(armRotationMatrix1, translationVector1);
 UR3e.base = rt2tr(armRotationMatrix2, translationVector2);
@@ -77,14 +66,6 @@ WidowX250GripperR.animate([0, 0.03]);
 UR3eGripperL.animate([0, 0, 0]);
 UR3eGripperR.animate([0, 0, 0]);
 
-q1 = [-pi / 4, 0, 0];
-q2 = [pi / 4, 0, 0];
-steps = 2;
-while ~isempty(find(1 < abs(diff(rad2deg(jtraj(q1, q2, steps)))),1))
-    steps = steps + 1;
-end
-qMatrix = jtraj(q1, q2, steps);
-
 %% Environment
 folderName = 'data';
 
@@ -104,7 +85,6 @@ PlaceObject(fullfile(folderName, 'rubbishBin2.ply'), [-0.4, -1, tableHeight]);
 PlaceObject(fullfile(folderName, 'rubbishBin2.ply'), [0.2, -1, tableHeight]);
 PlaceObject(fullfile(folderName, 'brownTable.ply'), [0, 0, 0]);
 PlaceObject(fullfile(folderName, 'warningSign.ply'), [1.5, -1.5, 0]);
-% PlaceObject(fullfile(folderName, 'assembledFence.ply'), [0.25, 0.7, -0.97]);
 PlaceObject(fullfile(folderName, 'wheeledTable.ply'), [-0.8, -0.75, 0]);
 PlaceObject(fullfile(folderName, 'tableChair.ply'), [-1.6, -0.25, 0]);
 PlaceObject(fullfile(folderName, 'wheelieBin.ply'), [1.2, 2, 0]);
@@ -122,22 +102,11 @@ x1 = zeros(size(y1)) - 1.2;
 lightCurtain1 = surf(x1,y1,z1,'FaceAlpha',0.1,'EdgeColor','none');
 hold on;
 
-% [y2,z2] = meshgrid(1.5:0.01:-1, 0.1:0.01:1.5);  %setting location of meshgrid
-% x2 = zeros(size(y2)) + 0.2;
-% lightCurtain2 = surf(x2,y2,z2,'FaceAlpha',0.1,'EdgeColor','none');
-% hold on;
-
-
-
-% PlaceObject('emergencyStopButton.ply', [0.96, 0.6, TableDimensions(3)]);
-
 %% Place Movable objects
 % Create Cups and Place Randomly
 cupHeight = 0.1;
 
-% 14 Cups to Start with
 % X250 has 7 Cups
-
 initCupArrayX250 = [; ...
     -0.1, -0.25, tableHeight; ...
     -0.3, -0.3, tableHeight; ...
@@ -171,44 +140,44 @@ end
 
 disp('Setup is complete');
 
-%%  Light Curtain Demo
+%% Light Curtain Demo
 
-[f,v,data] = plyread(fullfile('data', 'sodaCan.ply'), 'tri');
-canVertices = v;
+% Importing the 3D model of a soda can
+[f, v, data] = plyread(fullfile('data', 'sodaCan.ply'), 'tri');
+canVertices = v; % Storing vertices of the soda can
 
-Initial = [-1.5,0,0.5];
+% Define initial and final positions for the soda can
+Initial = [-1.5, 0, 0.5];
 Final = [1.2, 0, 0.5];
 
-steps = 30;
+steps = 30; % Define the number of steps for the demonstration
 
-xCan = -1.5;
-canHandles = [];
+xCan = -1.5; % Initialise x-coordinate for the soda can
+canHandles = []; % Initialise an array to store handles of the soda cans
+
+input("Press Enter to Run Demo"); % Prompt user to start the demo
 
 for j = 1:steps
-    % Delete previously created cans
+    % Remove previously created soda cans
     if ~isempty(canHandles)
         delete(canHandles);
         canHandles = [];
     end
 
-    % Create a new soda can
+    % Create a new soda can and store its handle
     canHandle = PlaceObject(fullfile('data', 'sodaCan.ply'), [xCan, 0, 0.6]);
-    canHandles = [canHandles, canHandle]; % Store the handle
+    canHandles = [canHandles, canHandle];
 
-    pause(0.2);
+    pause(0.1); % Pause to display the movement
 
-    xCan = xCan + 0.01;
-    canVertices(:, 1) = canVertices(:, 1) + xCan;
-    drawnow;
+    xCan = xCan + 0.01; % Increment x-coordinate for the next soda can
+    canVertices(:, 1) = canVertices(:, 1) + xCan; % Update vertices along x-axis
+    drawnow; % Refresh the display
 
+    % Display a warning when the soda can crosses a certain threshold
     if xCan >= -1.2
-        fprintf("Light Curtain has been activated\n");
-        lightCurtain1 = surf(x1, y1, z1, 'FaceAlpha', 0.1, 'FaceColor', 'red');
-        set(gcf, 'color', 'r');
+        disp("Light Curtain has been activated");
+        lightCurtain1 = surf(x1, y1, z1, 'FaceAlpha', 0.1, 'FaceColor', 'red'); % Activate a red light curtain
+        set(gcf, 'color', 'r'); % Change figure background color to red
     end
 end
-
-
-
-
-

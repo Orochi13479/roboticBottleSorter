@@ -98,11 +98,10 @@ surf([-4.3, -4.3; 4.3, 4.3] ...
 % Place objects in environment
 PlaceObject(fullfile(folderName, 'emergencyStopButton.ply'), [-1.5, -0.2, 0.6]);
 PlaceObject(fullfile(folderName, 'fireExtinguisherElevated.ply'), [-1.25, 1.5, 0.45]);
-PlaceObject(fullfile(folderName, 'rubbishBin2.ply'), [-0.3, -1, tableHeight]);
-PlaceObject(fullfile(folderName, 'rubbishBin2.ply'), [0.3, -1, tableHeight]);
+PlaceObject(fullfile(folderName, 'rubbishBin.ply'), [-0.3, -1, tableHeight]);
+PlaceObject(fullfile(folderName, 'rubbishBin.ply'), [0.3, -1, tableHeight]);
 PlaceObject(fullfile(folderName, 'brownTable.ply'), [0, 0, 0]);
 PlaceObject(fullfile(folderName, 'warningSign.ply'), [1.35, -1.5, 0]);
-% PlaceObject(fullfile(folderName, 'assembledFence.ply'), [0.25, 0.7, -0.97]);
 PlaceObject(fullfile(folderName, 'wheeledTable.ply'), [-0.8, -0.75, 0]);
 PlaceObject(fullfile(folderName, 'tableChair.ply'), [-1.6, -0.25, 0]);
 PlaceObject(fullfile(folderName, 'wheelieBin.ply'), [1.2, 2, 0]);

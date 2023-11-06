@@ -1,4 +1,4 @@
-%% PlaceObject
+%% PlaceObject MODIFIED
 % Place ply file objects into the environment at a certain location
 function [ mesh_h,f,v,data ] = PlaceObject( name , locations )
     [f,v,data] = plyread(name,'tri');
@@ -23,11 +23,6 @@ function [ mesh_h,f,v,data ] = PlaceObject( name , locations )
             % Plot the Trisurf            
             mesh_h(i) = trisurf(f,v(:,1)+locations(i,1),v(:,2)+locations(i,2), v(:,3)+locations(i,3) ...
                 ,'FaceVertexCData',vertexColours,'EdgeColor','none','EdgeLighting','none');
-
-% An alternative way of plotting with different edge colours and lighting            
-%             mesh_h(i) = trisurf(f,v(:,1)+locations(i,1),v(:,2)+locations(i,2), v(:,3)+locations(i,3) ...
-%                 ,'FaceVertexCData',vertexColours,'EdgeColor','interp','EdgeLighting','flat');
-
         end
     % Catch the case where there are no colours
     catch ME_1
