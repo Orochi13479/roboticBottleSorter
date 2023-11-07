@@ -16,6 +16,12 @@ classdef CupStacker
         finalCupTrX250
         eStop = false;
         resume = true;
+
+        ledPin = 'D3';
+        buttonPin = 'D2';
+        deltaT_blink = 0.5;
+        
+        % a = arduino;
     end
 
     methods
@@ -112,9 +118,34 @@ classdef CupStacker
 
             % Environment Setup
             environment(self);
-            % cupPlacement(self);
-            % operate(self);
 
+
+    % a.configurePin(buttonPin, 'Pullup');
+    % buttonState = 1;
+    % isBlinking = true;
+    % 
+    % % while isBlinking
+    % %     buttonState = a.readDigitalPin(buttonPin);
+    %     if buttonState == 0
+    %         isBlinking = ~isBlinking; % Toggle the blinking state
+    %     end
+    % 
+    %     if isBlinking
+    %         for k = 1:10
+    %             a.writeDigitalPin(ledPin, 0);
+    %             pause(deltaT_blink/2)
+    % 
+    %             a.writeDigitalPin(ledPin, 1);
+    %             pause(deltaT_blink/2);
+    % 
+    %             buttonState = a.readDigitalPin(buttonPin);
+    %             if buttonState == 0
+    %                 isBlinking = ~isBlinking; % Toggle the blinking state
+    %                 break;
+    %             end
+    %         end
+    %     end
+            
         end
 
         %% Environment and Figure Initialisation and Creation
@@ -128,7 +159,6 @@ classdef CupStacker
 
             % Environment - Table dimensions
             TableDimensions = [2.1, 1.4, 0.5]; %[Length, Width, Height]
-            % wheeledTableDimensions = [0.75, 1.2, 0.52]; %[Length, Width, Height]
             tableHeight = TableDimensions(3);
 
             % Concrete floor
@@ -138,13 +168,12 @@ classdef CupStacker
                 , 'CData', imread(fullfile(folderName, 'woodenFloor.jpg')), 'FaceColor', 'texturemap');
 
             % Place objects in environment
-            PlaceObject(fullfile(folderName, 'emergencyStopButton.ply'), [0.65, -1.3, tableHeight]);
+            PlaceObject(fullfile(folderName, 'emergencyStopButton.ply'), [-1.5, -0.2, 0.6]);
             PlaceObject(fullfile(folderName, 'fireExtinguisherElevated.ply'), [-1.25, 1.5, 0.45]);
-            PlaceObject(fullfile(folderName, 'rubbishBin2.ply'), [-0.4, -1, tableHeight]);
-            PlaceObject(fullfile(folderName, 'rubbishBin2.ply'), [0.2, -1, tableHeight]);
+            PlaceObject(fullfile(folderName, 'rubbishBin.ply'), [-0.3, -1, tableHeight]);
+            PlaceObject(fullfile(folderName, 'rubbishBin.ply'), [0.3, -1, tableHeight]);
             PlaceObject(fullfile(folderName, 'brownTable.ply'), [0, 0, 0]);
             PlaceObject(fullfile(folderName, 'warningSign.ply'), [1.35, -1.5, 0]);
-            % PlaceObject(fullfile(folderName, 'assembledFence.ply'), [0.25, 0.7, -0.97]);
             PlaceObject(fullfile(folderName, 'wheeledTable.ply'), [-0.8, -0.75, 0]);
             PlaceObject(fullfile(folderName, 'tableChair.ply'), [-1.6, -0.25, 0]);
             PlaceObject(fullfile(folderName, 'wheelieBin.ply'), [1.2, 2, 0]);
