@@ -20,7 +20,7 @@ classdef CupStacker
         ledPin = 'D3';
         buttonPin = 'D2';
         deltaT_blink = 0.5;
-        
+
         % a = arduino;
     end
 
@@ -120,32 +120,32 @@ classdef CupStacker
             environment(self);
 
 
-    % a.configurePin(buttonPin, 'Pullup');
-    % buttonState = 1;
-    % isBlinking = true;
-    % 
-    % % while isBlinking
-    % %     buttonState = a.readDigitalPin(buttonPin);
-    %     if buttonState == 0
-    %         isBlinking = ~isBlinking; % Toggle the blinking state
-    %     end
-    % 
-    %     if isBlinking
-    %         for k = 1:10
-    %             a.writeDigitalPin(ledPin, 0);
-    %             pause(deltaT_blink/2)
-    % 
-    %             a.writeDigitalPin(ledPin, 1);
-    %             pause(deltaT_blink/2);
-    % 
-    %             buttonState = a.readDigitalPin(buttonPin);
-    %             if buttonState == 0
-    %                 isBlinking = ~isBlinking; % Toggle the blinking state
-    %                 break;
-    %             end
-    %         end
-    %     end
-            
+            % a.configurePin(buttonPin, 'Pullup');
+            % buttonState = 1;
+            % isBlinking = true;
+            %
+            % % while isBlinking
+            % %     buttonState = a.readDigitalPin(buttonPin);
+            %     if buttonState == 0
+            %         isBlinking = ~isBlinking; % Toggle the blinking state
+            %     end
+            %
+            %     if isBlinking
+            %         for k = 1:10
+            %             a.writeDigitalPin(ledPin, 0);
+            %             pause(deltaT_blink/2)
+            %
+            %             a.writeDigitalPin(ledPin, 1);
+            %             pause(deltaT_blink/2);
+            %
+            %             buttonState = a.readDigitalPin(buttonPin);
+            %             if buttonState == 0
+            %                 isBlinking = ~isBlinking; % Toggle the blinking state
+            %                 break;
+            %             end
+            %         end
+            %     end
+
         end
 
         %% Environment and Figure Initialisation and Creation
@@ -345,7 +345,7 @@ classdef CupStacker
                 end
 
                 waypointUR31 = RMRC(UR3, trInitialUR3, trWaypointUR3, UR3.getpos());
-                waypointX2501= RMRC(X250, trInitialX250, trWaypointX250, X250.getpos());
+                waypointX2501 = RMRC(X250, trInitialX250, trWaypointX250, X250.getpos());
 
                 movePLY(UR3, self.cupUR3, self.cupVertices, i, -cupHeight)
                 movePLY(X250, self.cupX250, self.canVertices, i, -canHeight)
@@ -419,50 +419,83 @@ classdef CupStacker
                     drawnow();
                 end
             end
-
         end
 
-        %% Light Curtain Demo
-        function LightCurtainDemo(self)
+    %% Light Curtain Demo
+    function LightCurtainDemo(self)
 
-            [y1,z1] = meshgrid(-1.5:0.01:1, 0.1:0.01:1.5);  %location of meshgrid
-            x1 = zeros(size(y1)) - 1.2;
-            lightCurtain1 = surf(x1,y1,z1,'FaceAlpha',0.1,'EdgeColor','none');
+        [y1,z1] = meshgrid(-1.5:0.01:1, 0.1:0.01:1.5);  %location of meshgrid
+        x1 = zeros(size(y1)) - 1.2;
+        lightCurtain1 = surf(x1,y1,z1,'FaceAlpha',0.1,'EdgeColor','none');
 
-            hold on;
+        hold on;
 
-            [f, v, data] = plyread(fullfile('data', 'sodaCan.ply'), 'tri');
-            cV = v;
+        [f, v, data] = plyread(fullfile('data', 'sodaCan.ply'), 'tri');
+        cV = v;
 
-            steps = 30;
+        steps = 30;
 
-            xCan = -1.5;
-            canHandles = [];
+        xCan = -1.5;
+        canHandles = [];
 
-            for j = 1:steps
-                % Delete previously created cans
-                if ~isempty(canHandles)
-                    delete(canHandles);
-                    canHandles = [];
-                end
+        for j = 1:steps
+            % Delete previously created cans
+            if ~isempty(canHandles)
+                delete(canHandles);
+                canHandles = [];
+            end
 
-                % Create a new soda can
-                canHandle = PlaceObject(fullfile('data', 'sodaCan.ply'), [xCan, 0, 0.6]);
-                canHandles = [canHandles, canHandle]; % Store the handle
+            % Create a new soda can
+            canHandle = PlaceObject(fullfile('data', 'sodaCan.ply'), [xCan, 0, 0.6]);
+            canHandles = [canHandles, canHandle]; % Store the handle
 
-                pause(0.2);
+            pause(0.2);
 
-                xCan = xCan + 0.01;
-                cV(:, 1) = cV(:, 1) + xCan;
-                drawnow;
+            xCan = xCan + 0.01;
+            cV(:, 1) = cV(:, 1) + xCan;
+            drawnow;
 
-                if xCan >= -1.2
-                    fprintf("Light Curtain has been activated\n");
-                    lightCurtain1 = surf(x1, y1, z1, 'FaceAlpha', 0.1, 'FaceColor', 'red');
-                    set(gcf, 'color', 'r');
-                end
+            if xCan >= -1.2
+                fprintf("Light Curtain has been activated\n");
+                lightCurtain1 = surf(x1, y1, z1, 'FaceAlpha', 0.1, 'FaceColor', 'red');
+                set(gcf, 'color', 'r');
             end
         end
-
     end
+
+    function emergencyButton(self)
+        UR3 = self.UR3e.model;
+        X250 = self.WidowX250.model;
+        WidowX250GripperL = self.X250GripperL.model;
+        WidowX250GripperR = self.X250GripperR.model;
+
+        UR3eGripperL = self.URGripperL.model;
+        UR3eGripperR = self.URGripperR.model;
+
+        self.eStop = true;
+        self.resume = false;
+
+        while self.eStop == true
+            currentWidowPos = X250.getpos();
+            currentUR3Pos = UR3.getpos();
+            currentWidowGripperLPos = WidowX250GripperL.getpos();
+            currentWidowGripperRPos = WidowX250GripperR.getpos();
+            currentUR3eGripperRPos = UR3eGripperR.getpos();
+            currentUR3eGripperLPos = UR3eGripperL.getpos();
+            X250.animate(currentWidowPos);
+            UR3.animate(currentUR3Pos);
+            WidowX250GripperL.animate(currentWidowGripperLPos);
+            WidowX250GripperR.animate(currentWidowGripperRPos);
+            UR3eGripperL.animate(currentUR3eGripperLPos);
+            UR3eGripperR.animate(currentUR3eGripperRPos);
+            drawnow;
+        end
+    end
+
+    function resumeButton(self)
+        self.eStop = false;
+        self.resume = true;
+    end
+
+end
 end
