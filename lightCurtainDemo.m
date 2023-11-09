@@ -97,10 +97,7 @@ PlaceObject(fullfile(folderName, 'lightCurtain.ply'), [1.2, 1, 0.85]);
 PlaceObject(fullfile(folderName, 'lightCurtain.ply'), [-1.2, -1.5, 0.85]);
 PlaceObject(fullfile(folderName, 'lightCurtain.ply'), [-1.2, 1, 0.85]);
 
-[y1,z1] = meshgrid(-1.5:0.01:1, 0.1:0.01:1.5);  %setting location of meshgrid
-x1 = zeros(size(y1)) - 1.2;
-lightCurtain1 = surf(x1,y1,z1,'FaceAlpha',0.1,'EdgeColor','none');
-hold on;
+
 
 %% Place Movable objects
 % Create Cups and Place Randomly
@@ -145,6 +142,11 @@ disp('Setup is complete');
 % Importing the 3D model of a soda can
 [f, v, data] = plyread(fullfile('data', 'sodaCan.ply'), 'tri');
 canVertices = v; % Storing vertices of the soda can
+
+[y1,z1] = meshgrid(-1.5:0.01:1, 0.1:0.01:1.5);  %setting location of meshgrid
+x1 = zeros(size(y1)) - 1.2;
+lightCurtain1 = surf(x1,y1,z1,'FaceAlpha',0.1,'EdgeColor','none');
+hold on;
 
 % Define initial and final positions for the soda can
 Initial = [-1.5, 0, 0.5];
